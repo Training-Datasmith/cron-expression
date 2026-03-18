@@ -83,9 +83,8 @@ class DayOfWeekField extends AbstractField
 
             if (!is_numeric($nth)) {
                 throw new InvalidArgumentException("Hashed weekdays must be numeric, {$nth} given");
-            } else {
-                $nth = (int) $nth;
             }
+            $nth = (int) $nth;
 
             // 0 and 7 are both Sunday, however 7 matches date('N') format ISO-8601
             if ('0' === $weekday) {
@@ -125,7 +124,7 @@ class DayOfWeekField extends AbstractField
         }
 
         // Handle day of the week values
-        if (false !== strpos($value, '-')) {
+        if (str_contains($value, '-')) {
             $parts = explode('-', $value);
             if ('7' === $parts[0]) {
                 $parts[0] = 0;
@@ -136,9 +135,7 @@ class DayOfWeekField extends AbstractField
         }
 
         // Test to see which Sunday to use -- 0 == 7 == Sunday
-        $format = \in_array(7, array_map(function ($value) {
-            return (int) $value;
-        }, str_split($value)), true) ? 'N' : 'w';
+        $format = \in_array(7, array_map(fn($value) => (int) $value, str_split($value)), true) ? 'N' : 'w';
         $fieldValue = (int) $date->format($format);
 
         return $this->isSatisfied($fieldValue, $value);
@@ -173,7 +170,7 @@ class DayOfWeekField extends AbstractField
             }
 
             // Handle the # value
-            if (false !== strpos($value, '#')) {
+            if (str_contains($value, '#')) {
                 $chunks = explode('#', $value);
                 $chunks[0] = $this->convertLiterals($chunks[0]);
 

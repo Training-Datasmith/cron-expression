@@ -30,8 +30,6 @@ interface FieldInterface
      * @param DateTimeInterface $date DateTime object to change
      * @param bool $invert (optional) Set to TRUE to decrement
      * @param string|null $parts (optional) Set parts to use
-     *
-     * @return FieldInterface
      */
     public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface;
 

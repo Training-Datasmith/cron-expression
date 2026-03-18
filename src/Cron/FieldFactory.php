@@ -16,7 +16,7 @@ class FieldFactory implements FieldFactoryInterface
     /**
      * @var array<int, FieldInterface> Cache of instantiated fields
      */
-    private $fields = [];
+    private array $fields = [];
 
     /**
      * Get an instance of a field object for a cron expression position.
@@ -32,21 +32,15 @@ class FieldFactory implements FieldFactoryInterface
 
     private function instantiateField(int $position): FieldInterface
     {
-        switch ($position) {
-            case CronExpression::MINUTE:
-                return new MinutesField();
-            case CronExpression::HOUR:
-                return new HoursField();
-            case CronExpression::DAY:
-                return new DayOfMonthField();
-            case CronExpression::MONTH:
-                return new MonthField();
-            case CronExpression::WEEKDAY:
-                return new DayOfWeekField();
-        }
-
-        throw new InvalidArgumentException(
-            ($position + 1) . ' is not a valid position'
-        );
+        return match ($position) {
+            CronExpression::MINUTE => new MinutesField(),
+            CronExpression::HOUR => new HoursField(),
+            CronExpression::DAY => new DayOfMonthField(),
+            CronExpression::MONTH => new MonthField(),
+            CronExpression::WEEKDAY => new DayOfWeekField(),
+            default => throw new InvalidArgumentException(
+                ($position + 1) . ' is not a valid position'
+            ),
+        };
     }
 }

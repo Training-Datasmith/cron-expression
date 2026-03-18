@@ -30,12 +30,12 @@ class HoursField extends AbstractField
     /**
      * @var int|null Timestamp of the start of the transitions range
      */
-    protected $transitionsStart = null;
+    protected $transitionsStart;
 
     /**
      * @var int|null Timestamp of the end of the transitions range
      */
-    protected $transitionsEnd = null;
+    protected $transitionsEnd;
 
     /**
      * {@inheritdoc}
@@ -141,7 +141,7 @@ class HoursField extends AbstractField
             return $this;
         }
 
-        $parts = false !== strpos($parts, ',') ? explode(',', $parts) : [$parts];
+        $parts = str_contains($parts, ',') ? explode(',', $parts) : [$parts];
         $hours = [];
         foreach ($parts as $part) {
             $hours = array_merge($hours, $this->getRangeForExpression($part, 23));

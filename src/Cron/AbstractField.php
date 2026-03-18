@@ -16,7 +16,7 @@ abstract class AbstractField implements FieldInterface
      *
      * @var array<int, int>
      */
-    protected $fullRange = [];
+    protected array $fullRange;
 
     /**
      * Literal values we need to convert to integers.
@@ -53,8 +53,6 @@ abstract class AbstractField implements FieldInterface
      * @internal
      * @param int $dateValue Date value to check
      * @param string $value Value to test
-     *
-     * @return bool
      */
     public function isSatisfied(int $dateValue, string $value): bool
     {
@@ -74,12 +72,10 @@ abstract class AbstractField implements FieldInterface
      *
      * @internal
      * @param string $value Value to test
-     *
-     * @return bool
      */
     public function isRange(string $value): bool
     {
-        return false !== strpos($value, '-');
+        return str_contains($value, '-');
     }
 
     /**
@@ -87,12 +83,10 @@ abstract class AbstractField implements FieldInterface
      *
      * @internal
      * @param string $value Value to test
-     *
-     * @return bool
      */
     public function isIncrementsOfRanges(string $value): bool
     {
-        return false !== strpos($value, '/');
+        return str_contains($value, '/');
     }
 
     /**
@@ -101,14 +95,12 @@ abstract class AbstractField implements FieldInterface
      * @internal
      * @param int $dateValue Set date value
      * @param string $value Value to test
-     *
-     * @return bool
      */
     public function isInRange(int $dateValue, $value): bool
     {
         $parts = array_map(
-            function ($value) {
-                $value = trim($value);
+            function ($value): string {
+                $value = trim((string) $value);
 
                 return $this->convertLiterals($value);
             },
@@ -124,12 +116,10 @@ abstract class AbstractField implements FieldInterface
      * @internal
      * @param int $dateValue Set date value
      * @param string $value Value to test
-     *
-     * @return bool
      */
     public function isInIncrementsOfRanges(int $dateValue, string $value): bool
     {
-        $chunks = array_map('trim', explode('/', $value, 2));
+        $chunks = array_map(trim(...), explode('/', $value, 2));
         $range = $chunks[0];
         $step = $chunks[1] ?? 0;
 
@@ -169,7 +159,7 @@ abstract class AbstractField implements FieldInterface
             $thisRange = [$this->fullRange[(int) $step % \count($this->fullRange)]];
         } else {
             if ($step > ($rangeEnd - $rangeStart)) {
-                $thisRange[$rangeStart] = (int) $rangeStart;
+                $thisRange[$rangeStart] = $rangeStart;
             } else {
                 $thisRange = range($rangeStart, $rangeEnd, (int) $step);
             }
@@ -191,7 +181,7 @@ abstract class AbstractField implements FieldInterface
         $values = [];
         $expression = $this->convertLiterals($expression);
 
-        if (false !== strpos($expression, ',')) {
+        if (str_contains($expression, ',')) {
             $ranges = explode(',', $expression);
             $values = [];
             foreach ($ranges as $range) {
@@ -209,7 +199,7 @@ abstract class AbstractField implements FieldInterface
                 $to = $this->convertLiterals($to);
                 $stepSize = 1;
             } else {
-                $range = array_map('trim', explode('/', $expression, 2));
+                $range = array_map(trim(...), explode('/', $expression, 2));
                 $stepSize = $range[1] ?? 0;
                 $range = $range[0];
                 $range = explode('-', $range, 2);
@@ -235,9 +225,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Convert literal.
      *
-     * @param string $value
      *
-     * @return string
      */
     protected function convertLiterals(string $value): string
     {
@@ -254,9 +242,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Checks to see if a value is valid for the field.
      *
-     * @param string $value
      *
-     * @return bool
      */
     public function validate(string $value): bool
     {
@@ -268,7 +254,7 @@ abstract class AbstractField implements FieldInterface
         }
 
         // Validate each chunk of a list individually
-        if (false !== strpos($value, ',')) {
+        if (str_contains($value, ',')) {
             foreach (explode(',', $value) as $listItem) {
                 if (!$this->validate($listItem)) {
                     return false;
@@ -278,7 +264,7 @@ abstract class AbstractField implements FieldInterface
             return true;
         }
 
-        if (false !== strpos($value, '/')) {
+        if (str_contains($value, '/')) {
             [$range, $step] = explode('/', $value);
 
             // Don't allow numeric ranges
@@ -289,7 +275,7 @@ abstract class AbstractField implements FieldInterface
             return $this->validate($range) && filter_var($step, FILTER_VALIDATE_INT);
         }
 
-        if (false !== strpos($value, '-')) {
+        if (str_contains($value, '-')) {
             if (substr_count($value, '-') > 1) {
                 return false;
             }
@@ -309,7 +295,7 @@ abstract class AbstractField implements FieldInterface
             return false;
         }
 
-        if (false !== strpos($value, '.')) {
+        if (str_contains($value, '.')) {
             return false;
         }
 
@@ -324,8 +310,7 @@ abstract class AbstractField implements FieldInterface
         $timezone = $dt->getTimezone();
         $dt = $dt->setTimezone(new \DateTimeZone("UTC"));
         $dt = $dt->modify($modification);
-        $dt = $dt->setTimezone($timezone);
-        return $dt;
+        return $dt->setTimezone($timezone);
     }
 
     protected function setTimeHour(DateTimeInterface $date, bool $invert, int $originalTimestamp): DateTimeInterface

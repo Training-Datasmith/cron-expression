@@ -25,7 +25,7 @@ use RuntimeException;
  *
  * @see http://en.wikipedia.org/wiki/Cron
  */
-class CronExpression
+class CronExpression implements \Stringable
 {
     public const MINUTE = 0;
     public const HOUR = 1;
@@ -54,7 +54,7 @@ class CronExpression
     /**
      * @var FieldFactoryInterface CRON field factory
      */
-    protected $fieldFactory;
+    protected \Cron\FieldFactoryInterface $fieldFactory;
 
     /**
      * @var int Max iteration count when searching for next run date
@@ -76,7 +76,7 @@ class CronExpression
     /**
      * @var array<string, string>
      */
-    private static $registeredAliases = self::MAPPINGS;
+    private static array $registeredAliases = self::MAPPINGS;
 
     /**
      * Registered a user defined CRON Expression Alias.
@@ -164,7 +164,7 @@ class CronExpression
     {
         try {
             new CronExpression($expression);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             return false;
         }
 
@@ -193,8 +193,6 @@ class CronExpression
      * @param string $value CRON expression (e.g. 8 * * * *)
      *
      * @throws \InvalidArgumentException if not a valid CRON expression
-     *
-     * @return CronExpression
      */
     public function setExpression(string $value): CronExpression
     {
@@ -236,8 +234,6 @@ class CronExpression
      * @param string $value The value to set
      *
      * @throws \InvalidArgumentException if the value is not valid for the part
-     *
-     * @return CronExpression
      */
     public function setPart(int $position, string $value): CronExpression
     {
@@ -256,8 +252,6 @@ class CronExpression
      * Set max iteration count for searching next run dates.
      *
      * @param int $maxIterationCount Max iteration count when searching for next run date
-     *
-     * @return CronExpression
      */
     public function setMaxIterationCount(int $maxIterationCount): CronExpression
     {
@@ -283,8 +277,6 @@ class CronExpression
      *
      * @throws \RuntimeException on too many iterations
      * @throws \Exception
-     *
-     * @return \DateTime
      */
     public function getNextRunDate($currentTime = 'now', int $nth = 0, bool $allowCurrentDate = false, $timeZone = null): DateTime
     {
@@ -303,7 +295,6 @@ class CronExpression
      * @throws \RuntimeException on too many iterations
      * @throws \Exception
      *
-     * @return \DateTime
      *
      * @see \Cron\CronExpression::getNextRunDate
      */
@@ -348,7 +339,7 @@ class CronExpression
         for ($i = 0; $i < $total; ++$i) {
             try {
                 $result = $this->getRunDate($currentTime, 0, $invert, $allowCurrentDate, $timeZone);
-            } catch (RuntimeException $e) {
+            } catch (RuntimeException) {
                 break;
             }
 
@@ -438,7 +429,7 @@ class CronExpression
 
         try {
             return $this->getNextRunDate($currentTime, 0, true)->getTimestamp() === $currentTime->getTimestamp();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -455,8 +446,6 @@ class CronExpression
      *
      * @throws \RuntimeException on too many iterations
      * @throws Exception
-     *
-     * @return \DateTime
      */
     protected function getRunDate($currentTime = null, int $nth = 0, bool $invert = false, bool $allowCurrentDate = false, $timeZone = null): DateTime
     {
@@ -491,7 +480,10 @@ class CronExpression
         $fields = [];
         foreach (self::$order as $position) {
             $part = $this->getExpression($position);
-            if (null === $part || '*' === $part) {
+            if (null === $part) {
+                continue;
+            }
+            if ('*' === $part) {
                 continue;
             }
             $parts[$position] = $part;
@@ -517,9 +509,7 @@ class CronExpression
             }
 
             $combined = array_merge($domRunDates, $dowRunDates);
-            usort($combined, function ($a, $b) {
-                return $a->format('Y-m-d H:i:s') <=> $b->format('Y-m-d H:i:s');
-            });
+            usort($combined, fn($a, $b) => $a->format('Y-m-d H:i:s') <=> $b->format('Y-m-d H:i:s'));
             if ($invert) {
                 $combined = array_reverse($combined);
             }
@@ -534,10 +524,10 @@ class CronExpression
                 // Get the field object used to validate this part
                 $field = $fields[$position];
                 // Check if this is singular or a list
-                if (false === strpos($part, ',')) {
+                if (!str_contains($part, ',')) {
                     $satisfied = $field->isSatisfiedBy($nextRun, $part, $invert);
                 } else {
-                    foreach (array_map('trim', explode(',', $part)) as $listPart) {
+                    foreach (array_map(trim(...), explode(',', $part)) as $listPart) {
                         if ($field->isSatisfiedBy($nextRun, $listPart, $invert)) {
                             $satisfied = true;
 
@@ -573,8 +563,6 @@ class CronExpression
      *
      * @param string|\DateTimeInterface|null $currentTime Relative calculation date
      * @param string|null $timeZone TimeZone to use instead of the system default
-     *
-     * @return string
      */
     protected function determineTimeZone($currentTime, ?string $timeZone): string
     {
