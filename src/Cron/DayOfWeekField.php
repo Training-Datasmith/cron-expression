@@ -135,7 +135,7 @@ class DayOfWeekField extends AbstractField
         }
 
         // Test to see which Sunday to use -- 0 == 7 == Sunday
-        $format = \in_array(7, array_map(fn($value) => (int) $value, str_split($value)), true) ? 'N' : 'w';
+        $format = \in_array(7, array_map(fn ($value) => (int) $value, str_split($value)), true) ? 'N' : 'w';
         $fieldValue = (int) $date->format($format);
 
         return $this->isSatisfied($fieldValue, $value);

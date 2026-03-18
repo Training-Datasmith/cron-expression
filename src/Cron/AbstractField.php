@@ -308,7 +308,7 @@ abstract class AbstractField implements FieldInterface
     protected function timezoneSafeModify(DateTimeInterface $dt, string $modification): DateTimeInterface
     {
         $timezone = $dt->getTimezone();
-        $dt = $dt->setTimezone(new \DateTimeZone("UTC"));
+        $dt = $dt->setTimezone(new \DateTimeZone('UTC'));
         $dt = $dt->modify($modification);
         return $dt->setTimezone($timezone);
     }
@@ -320,9 +320,9 @@ abstract class AbstractField implements FieldInterface
         // setTime caused the offset to change, moving time in the wrong direction
         $actualTimestamp = $date->format('U');
         if ((! $invert) && ($actualTimestamp <= $originalTimestamp)) {
-            $date = $this->timezoneSafeModify($date, "+1 hour");
+            $date = $this->timezoneSafeModify($date, '+1 hour');
         } elseif ($invert && ($actualTimestamp >= $originalTimestamp)) {
-            $date = $this->timezoneSafeModify($date, "-1 hour");
+            $date = $this->timezoneSafeModify($date, '-1 hour');
         }
 
         return $date;

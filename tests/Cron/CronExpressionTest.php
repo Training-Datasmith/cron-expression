@@ -405,10 +405,10 @@ class CronExpressionTest extends TestCase
     public function testGetRunDateHandlesDifferentDates(): void
     {
         $cron = new CronExpression('@weekly');
-        $date = new DateTime("2019-03-10 00:00:00");
-        $this->assertEquals($date, $cron->getNextRunDate("2019-03-03 08:00:00"));
-        $this->assertEquals($date, $cron->getNextRunDate(new DateTime("2019-03-03 08:00:00")));
-        $this->assertEquals($date, $cron->getNextRunDate(new DateTimeImmutable("2019-03-03 08:00:00")));
+        $date = new DateTime('2019-03-10 00:00:00');
+        $this->assertEquals($date, $cron->getNextRunDate('2019-03-03 08:00:00'));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTime('2019-03-03 08:00:00')));
+        $this->assertEquals($date, $cron->getNextRunDate(new DateTimeImmutable('2019-03-03 08:00:00')));
     }
 
     /**
@@ -421,9 +421,9 @@ class CronExpressionTest extends TestCase
     public function testGetRunDateHandlesSimultaneousDayOfMonthAndDayOfWeek(): void
     {
         $cron = new CronExpression('0 0 13 * 3');
-        $date = new DateTime("2021-07-15 00:00:00");
-        $this->assertEquals(new DateTime("2021-07-21 00:00:00"), $cron->getNextRunDate($date));
-        $this->assertEquals(new DateTime("2021-07-14 00:00:00"), $cron->getPreviousRunDate($date));
+        $date = new DateTime('2021-07-15 00:00:00');
+        $this->assertEquals(new DateTime('2021-07-21 00:00:00'), $cron->getNextRunDate($date));
+        $this->assertEquals(new DateTime('2021-07-14 00:00:00'), $cron->getPreviousRunDate($date));
     }
 
     public function testSkipsCurrentDateByDefault(): void
@@ -435,7 +435,7 @@ class CronExpressionTest extends TestCase
         $this->assertSame($current->format('Y-m-d H:i:00'), $nextPrev->format('Y-m-d H:i:s'));
     }
 
-    #[Ticket("7")]
+    #[Ticket('7')]
     public function testStripsForSeconds(): void
     {
         $cron = new CronExpression('* * * * *');
@@ -584,13 +584,13 @@ class CronExpressionTest extends TestCase
     public function testMakeDayOfWeekAnOrSometimes(): void
     {
         $cron = new CronExpression('30 0 1 * 1');
-        $runs = $cron->getMultipleRunDates(5, date("2019-10-10 23:20:00"), false, true);
+        $runs = $cron->getMultipleRunDates(5, date('2019-10-10 23:20:00'), false, true);
 
-        $this->assertSame("2019-10-14 00:30:00", $runs[0]->format('Y-m-d H:i:s'));
-        $this->assertSame("2019-10-21 00:30:00", $runs[1]->format('Y-m-d H:i:s'));
-        $this->assertSame("2019-10-28 00:30:00", $runs[2]->format('Y-m-d H:i:s'));
-        $this->assertSame("2019-11-01 00:30:00", $runs[3]->format('Y-m-d H:i:s'));
-        $this->assertSame("2019-11-04 00:30:00", $runs[4]->format('Y-m-d H:i:s'));
+        $this->assertSame('2019-10-14 00:30:00', $runs[0]->format('Y-m-d H:i:s'));
+        $this->assertSame('2019-10-21 00:30:00', $runs[1]->format('Y-m-d H:i:s'));
+        $this->assertSame('2019-10-28 00:30:00', $runs[2]->format('Y-m-d H:i:s'));
+        $this->assertSame('2019-11-01 00:30:00', $runs[3]->format('Y-m-d H:i:s'));
+        $this->assertSame('2019-11-04 00:30:00', $runs[4]->format('Y-m-d H:i:s'));
     }
 
     /**
@@ -601,11 +601,11 @@ class CronExpressionTest extends TestCase
     public function testNextRunDateShouldNotAddMinutes(): void
     {
         $e = new CronExpression('* 19 * * *');
-        $tz = new \DateTimeZone("Europe/London");
-        $dt = new \DateTimeImmutable("2021-05-31 18:15:00", $tz);
+        $tz = new \DateTimeZone('Europe/London');
+        $dt = new \DateTimeImmutable('2021-05-31 18:15:00', $tz);
         $nextRunDate = $e->getNextRunDate($dt);
 
-        $this->assertSame("00", $nextRunDate->format("i"));
+        $this->assertSame('00', $nextRunDate->format('i'));
     }
 
     /**

@@ -24,7 +24,7 @@ class MinutesField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert):bool
+    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert): bool
     {
         if ($value === '?') {
             return true;
@@ -42,7 +42,7 @@ class MinutesField extends AbstractField
     public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
     {
         if (is_null($parts)) {
-            $date = $this->timezoneSafeModify($date, ($invert ? "-" : "+") ."1 minute");
+            $date = $this->timezoneSafeModify($date, ($invert ? '-' : '+') .'1 minute');
             return $this;
         }
 
@@ -68,14 +68,14 @@ class MinutesField extends AbstractField
         }
 
         $target = (int) $minutes[$position];
-        $originalMinute = (int) $date->format("i");
+        $originalMinute = (int) $date->format('i');
 
         if (! $invert) {
             if ($originalMinute >= $target) {
                 $distance = 60 - $originalMinute;
                 $date = $this->timezoneSafeModify($date, "+{$distance} minutes");
 
-                $originalMinute = (int) $date->format("i");
+                $originalMinute = (int) $date->format('i');
             }
 
             $distance = $target - $originalMinute;
@@ -85,7 +85,7 @@ class MinutesField extends AbstractField
                 $distance = ($originalMinute + 1);
                 $date = $this->timezoneSafeModify($date, "-{$distance} minutes");
 
-                $originalMinute = (int) $date->format("i");
+                $originalMinute = (int) $date->format('i');
             }
 
             $distance = $originalMinute - $target;

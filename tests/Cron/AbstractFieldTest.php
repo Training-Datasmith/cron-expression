@@ -21,7 +21,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversFunction('isSatisfied')]
 class AbstractFieldTest extends TestCase
 {
-
     public function testTestsIfRange(): void
     {
         $f = new DayOfWeekField();

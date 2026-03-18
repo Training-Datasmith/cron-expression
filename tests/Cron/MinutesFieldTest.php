@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversFunction('increment')]
 class MinutesFieldTest extends TestCase
 {
-
     public function testValidatesField(): void
     {
         $f = new MinutesField();
@@ -27,7 +26,6 @@ class MinutesFieldTest extends TestCase
         $this->assertTrue($f->validate('*/3,1,1-12'));
         $this->assertFalse($f->validate('1/10'));
     }
-
 
     public function testChecksIfSatisfied(): void
     {
@@ -86,33 +84,33 @@ class MinutesFieldTest extends TestCase
 
     public function testIncrementAcrossDstChangeBerlin(): void
     {
-        $tz = new \DateTimeZone("Europe/Berlin");
-        $d = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-28 01:59:00", $tz);
+        $tz = new \DateTimeZone('Europe/Berlin');
+        $d = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2021-03-28 01:59:00', $tz);
         $f = new MinutesField();
         $f->increment($d);
-        $this->assertSame("2021-03-28 03:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 03:00:00', $d->format('Y-m-d H:i:s'));
 
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 01:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 01:59:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 01:58:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 01:58:00', $d->format('Y-m-d H:i:s'));
     }
 
     public function testIncrementAcrossDstChangeLondon(): void
     {
-        $tz = new \DateTimeZone("Europe/London");
-        $d = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-28 00:59:00", $tz);
+        $tz = new \DateTimeZone('Europe/London');
+        $d = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2021-03-28 00:59:00', $tz);
         $f = new MinutesField();
         $f->increment($d);
-        $this->assertSame("2021-03-28 02:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 02:00:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d);
-        $this->assertSame("2021-03-28 02:01:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 02:01:00', $d->format('Y-m-d H:i:s'));
 
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 02:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 02:00:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 00:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 00:59:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 00:58:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 00:58:00', $d->format('Y-m-d H:i:s'));
     }
 }

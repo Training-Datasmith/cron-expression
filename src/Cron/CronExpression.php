@@ -467,7 +467,7 @@ class CronExpression implements \Stringable
 
         $currentDate->setTimezone(new DateTimeZone($timeZone));
         // Workaround for setTime causing an offset change: https://bugs.php.net/bug.php?id=81074
-        $currentDate = DateTime::createFromFormat("!Y-m-d H:iO", $currentDate->format("Y-m-d H:iP"), $currentDate->getTimezone());
+        $currentDate = DateTime::createFromFormat('!Y-m-d H:iO', $currentDate->format('Y-m-d H:iP'), $currentDate->getTimezone());
         if ($currentDate === false) {
             throw new \RuntimeException('Unable to create date from format');
         }
@@ -509,7 +509,7 @@ class CronExpression implements \Stringable
             }
 
             $combined = array_merge($domRunDates, $dowRunDates);
-            usort($combined, fn($a, $b) => $a->format('Y-m-d H:i:s') <=> $b->format('Y-m-d H:i:s'));
+            usort($combined, fn ($a, $b) => $a->format('Y-m-d H:i:s') <=> $b->format('Y-m-d H:i:s'));
             if ($invert) {
                 $combined = array_reverse($combined);
             }

@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversFunction('increment')]
 class HoursFieldTest extends TestCase
 {
-
     public function testValidatesField(): void
     {
         $f = new HoursField();
@@ -81,41 +80,41 @@ class HoursFieldTest extends TestCase
 
     public function testIncrementAcrossDstChangeBerlin(): void
     {
-        $tz = new \DateTimeZone("Europe/Berlin");
-        $d = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-27 23:00:00", $tz);
+        $tz = new \DateTimeZone('Europe/Berlin');
+        $d = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2021-03-27 23:00:00', $tz);
         $f = new HoursField();
         $f->increment($d);
-        $this->assertSame("2021-03-28 00:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 00:00:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d);
-        $this->assertSame("2021-03-28 01:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 01:00:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d);
-        $this->assertSame("2021-03-28 03:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 03:00:00', $d->format('Y-m-d H:i:s'));
 
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 01:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 01:59:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 00:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 00:59:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertSame("2021-03-27 23:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-27 23:59:00', $d->format('Y-m-d H:i:s'));
     }
 
     public function testIncrementAcrossDstChangeLondon(): void
     {
-        $tz = new \DateTimeZone("Europe/London");
-        $d = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-27 23:00:00", $tz);
+        $tz = new \DateTimeZone('Europe/London');
+        $d = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2021-03-27 23:00:00', $tz);
         $f = new HoursField();
         $f->increment($d);
-        $this->assertSame("2021-03-28 00:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 00:00:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d);
-        $this->assertSame("2021-03-28 02:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 02:00:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d);
-        $this->assertSame("2021-03-28 03:00:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 03:00:00', $d->format('Y-m-d H:i:s'));
 
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 02:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 02:59:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertSame("2021-03-28 00:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-28 00:59:00', $d->format('Y-m-d H:i:s'));
         $f->increment($d, true);
-        $this->assertSame("2021-03-27 23:59:00", $d->format("Y-m-d H:i:s"));
+        $this->assertSame('2021-03-27 23:59:00', $d->format('Y-m-d H:i:s'));
     }
 }

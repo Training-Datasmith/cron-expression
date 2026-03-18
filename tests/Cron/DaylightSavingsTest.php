@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Cron\Tests;
@@ -12,29 +13,29 @@ class DaylightSavingsTest extends TestCase
 {
     public function testIssue111(): void
     {
-        $expression = "0 1 * * 0";
+        $expression = '0 1 * * 0';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("Europe/London");
+        $tz = new \DateTimeZone('Europe/London');
 
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
 
-        $dtCurrent = \DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", "2021-03-28 14:55:03", $tz);
+        $dtCurrent = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2021-03-28 14:55:03', $tz);
         $dtActual = $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName());
         $this->assertEquals($dtExpected, $dtActual);
 
-        $dtCurrent = $this->createDateTimeExactly("2021-04-21 00:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-04-21 00:00+01:00', $tz);
         $dtActual = $cron->getPreviousRunDate($dtCurrent, 3, true, $tz->getName());
         $this->assertEquals($dtExpected, $dtActual);
     }
 
     public function testIssue112(): void
     {
-        $expression = "15 2 * * 0";
+        $expression = '15 2 * * 0';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("America/Winnipeg");
+        $tz = new \DateTimeZone('America/Winnipeg');
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-08 08:15-06:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-14 03:15-05:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-08 08:15-06:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-14 03:15-05:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent));
     }
 
@@ -46,70 +47,70 @@ class DaylightSavingsTest extends TestCase
      */
     protected function createDateTimeExactly($dtString, \DateTimeZone $timezone)
     {
-        $dt = \DateTimeImmutable::createFromFormat("!Y-m-d H:iO", $dtString, $timezone);
+        $dt = \DateTimeImmutable::createFromFormat('!Y-m-d H:iO', $dtString, $timezone);
         $dt = $dt->setTimezone($timezone);
-        $this->assertEquals($dtString, $dt->format("Y-m-d H:iP"));
-        $this->assertEquals($timezone->getName(), $dt->format("e"));
+        $this->assertEquals($dtString, $dt->format('Y-m-d H:iP'));
+        $this->assertEquals($timezone->getName(), $dt->format('e'));
         return $dt;
     }
 
     public function testOffsetIncrementsNextRunDate(): void
     {
-        $tz = new \DateTimeZone("Europe/London");
-        $cron = new CronExpression("0 1 * * 0");
+        $tz = new \DateTimeZone('Europe/London');
+        $cron = new CronExpression('0 1 * * 0');
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-21 00:00+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-21 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-21 00:00+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-21 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-21 02:00+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-21 02:00+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 00:00+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 00:00+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, true, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-04-04 01:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-04-04 01:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 02:05+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-04-04 01:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 02:05+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-04-04 01:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
     }
 
     public function testOffsetIncrementsPreviousRunDate(): void
     {
-        $tz = new \DateTimeZone("Europe/London");
-        $cron = new CronExpression("0 1 * * 0");
+        $tz = new \DateTimeZone('Europe/London');
+        $cron = new CronExpression('0 1 * * 0');
 
-        $dtCurrent = $this->createDateTimeExactly("2021-04-04 02:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-04-04 01:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-04-04 02:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-04-04 01:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-04-04 00:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-04-04 00:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 03:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 03:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-21 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-21 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 03:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 03:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, true, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 00:00+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-21 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 00:00+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-21 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
     }
 
@@ -120,31 +121,31 @@ class DaylightSavingsTest extends TestCase
     #[RequiresPhp('<=8.0.22')]
     public function testOffsetDecrementsNextRunDateAllowCurrent(): void
     {
-        $tz = new \DateTimeZone("Europe/London");
-        $cron = new CronExpression("0 1 * * 0");
+        $tz = new \DateTimeZone('Europe/London');
+        $cron = new CronExpression('0 1 * * 0');
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-18 00:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-18 01:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-18 00:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-18 01:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, true, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-18 01:05+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-18 01:05+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, true, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 00:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 00:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, true, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 01:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 01:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, true, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, true, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 01:05+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-11-01 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 01:05+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-11-01 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, true, $tz->getName()));
     }
 
@@ -157,148 +158,148 @@ class DaylightSavingsTest extends TestCase
     #[RequiresPhp('<=8.0.22')]
     public function testOffsetDecrementsNextRunDateDisallowCurrent(): void
     {
-        $tz = new \DateTimeZone("Europe/London");
-        $cron = new CronExpression("0 1 * * 0");
+        $tz = new \DateTimeZone('Europe/London');
+        $cron = new CronExpression('0 1 * * 0');
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-18 00:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-18 01:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-18 00:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-18 01:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-18 01:05+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-18 01:05+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 00:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 00:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 01:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 01:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 01:05+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 01:05+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-11-01 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-11-01 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 01:05+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2020-11-01 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 01:05+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2020-11-01 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getNextRunDate($dtCurrent, 0, false, $tz->getName()));
     }
 
     public function testOffsetDecrementsPreviousRunDate(): void
     {
-        $tz = new \DateTimeZone("Europe/London");
-        $cron = new CronExpression("0 1 * * 0");
+        $tz = new \DateTimeZone('Europe/London');
+        $cron = new CronExpression('0 1 * * 0');
 
-        $dtCurrent = $this->createDateTimeExactly("2021-04-04 02:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-04-04 01:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-04-04 02:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-04-04 01:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-04-04 00:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-04-04 00:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 03:00+01:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 03:00+01:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 00:00+00:00", $tz);
-        $dtExpected = $this->createDateTimeExactly("2021-03-21 01:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 00:00+00:00', $tz);
+        $dtExpected = $this->createDateTimeExactly('2021-03-21 01:00+00:00', $tz);
         $this->assertEquals($dtExpected, $cron->getPreviousRunDate($dtCurrent, 0, false, $tz->getName()));
     }
 
     public static function dayLightSavingExamples(): \Generator
     {
         yield 'fixed hour before turnover point' => [
-            "0 1 * * 0",
+            '0 1 * * 0',
             [
-                "2021-03-14 01:00+00:00",
-                "2021-03-21 01:00+00:00",
-                "2021-03-28 02:00+01:00",
-                "2021-04-04 01:00+01:00",
-                "2021-04-11 01:00+01:00",
+                '2021-03-14 01:00+00:00',
+                '2021-03-21 01:00+00:00',
+                '2021-03-28 02:00+01:00',
+                '2021-04-04 01:00+01:00',
+                '2021-04-11 01:00+01:00',
             ],
-            new \DateTimeZone("Europe/London"),
-            "2021-03-13 00:00+00:00",
-            "2021-04-12 00:00+01:00",
+            new \DateTimeZone('Europe/London'),
+            '2021-03-13 00:00+00:00',
+            '2021-04-12 00:00+01:00',
         ];
 
         yield 'fixed hour expression while daylight saving is starting (#154)' => [
-            "30 07 * * *",
+            '30 07 * * *',
             [
-                "2023-03-11 07:30-05:00",
-                "2023-03-12 07:30-04:00",
-                "2023-03-13 07:30-04:00",
+                '2023-03-11 07:30-05:00',
+                '2023-03-12 07:30-04:00',
+                '2023-03-13 07:30-04:00',
             ],
-            new \DateTimeZone("America/New_York"),
-            "2023-03-10 08:00-05:00",
-            "2023-03-13 08:00-04:00",
+            new \DateTimeZone('America/New_York'),
+            '2023-03-10 08:00-05:00',
+            '2023-03-13 08:00-04:00',
         ];
 
         yield 'fixed hour expression while daylight saving is starting (#202)' => [
-            "0 10 * * *",
+            '0 10 * * *',
             [
-                "2025-03-08 10:00-06:00",
-                "2025-03-09 10:00-05:00",
-                "2025-03-10 10:00-05:00",
+                '2025-03-08 10:00-06:00',
+                '2025-03-09 10:00-05:00',
+                '2025-03-10 10:00-05:00',
             ],
-            new \DateTimeZone("America/Chicago"),
-            "2025-03-08 09:00-06:00",
-            "2025-03-10 11:00-05:00",
+            new \DateTimeZone('America/Chicago'),
+            '2025-03-08 09:00-06:00',
+            '2025-03-10 11:00-05:00',
         ];
 
         yield 'fixed hour expression while daylight saving is ending' => [
-            "0 10 * * *",
+            '0 10 * * *',
             [
-                "2025-11-01 10:00-05:00",
-                "2025-11-02 10:00-06:00",
-                "2025-11-03 10:00-06:00",
+                '2025-11-01 10:00-05:00',
+                '2025-11-02 10:00-06:00',
+                '2025-11-03 10:00-06:00',
             ],
-            new \DateTimeZone("America/Chicago"),
-            "2025-11-01 09:00-05:00",
-            "2025-11-03 11:00-06:00",
+            new \DateTimeZone('America/Chicago'),
+            '2025-11-01 09:00-05:00',
+            '2025-11-03 11:00-06:00',
         ];
 
         yield 'every hour expression while daylight saving is starting' => [
-            "30 */1 * * *",
+            '30 */1 * * *',
             [
-                "2025-03-09 00:30-06:00",
-                "2025-03-09 01:30-06:00",
-                "2025-03-09 03:30-05:00",
-                "2025-03-09 04:30-05:00",
+                '2025-03-09 00:30-06:00',
+                '2025-03-09 01:30-06:00',
+                '2025-03-09 03:30-05:00',
+                '2025-03-09 04:30-05:00',
             ],
-            new \DateTimeZone("America/Chicago"),
-            "2025-03-09 00:00-06:00",
-            "2025-03-09 05:00-05:00",
+            new \DateTimeZone('America/Chicago'),
+            '2025-03-09 00:00-06:00',
+            '2025-03-09 05:00-05:00',
         ];
 
         yield 'every hour expression while daylight saving is ending' => [
-            "30 */1 * * *",
+            '30 */1 * * *',
             [
-                "2025-11-02 00:30-05:00",
-                "2025-11-02 01:30-05:00",
-                "2025-11-02 01:30-06:00",
-                "2025-11-02 02:30-06:00",
+                '2025-11-02 00:30-05:00',
+                '2025-11-02 01:30-05:00',
+                '2025-11-02 01:30-06:00',
+                '2025-11-02 02:30-06:00',
             ],
-            new \DateTimeZone("America/Chicago"),
-            "2025-11-02 00:00-05:00",
-            "2025-11-02 03:00-06:00",
+            new \DateTimeZone('America/Chicago'),
+            '2025-11-02 00:00-05:00',
+            '2025-11-02 03:00-06:00',
         ];
 
         yield 'fixed time expression inside the daylight transition hour' => [
-            "30 2 * * *",
+            '30 2 * * *',
             [
-                "2025-03-08 02:30-06:00",
-                "2025-03-09 03:30-05:00",
-                "2025-03-10 02:30-05:00",
+                '2025-03-08 02:30-06:00',
+                '2025-03-09 03:30-05:00',
+                '2025-03-10 02:30-05:00',
             ],
-            new \DateTimeZone("America/Chicago"),
-            "2025-03-08 01:30-06:00",
-            "2025-03-10 11:00-05:00",
+            new \DateTimeZone('America/Chicago'),
+            '2025-03-08 01:30-06:00',
+            '2025-03-10 11:00-05:00',
         ];
     }
 
@@ -318,7 +319,7 @@ class DaylightSavingsTest extends TestCase
 
         $expected = array_map(
             function (string $dtString) use ($tz) {
-              return $this->createDateTimeExactly($dtString, $tz);
+                return $this->createDateTimeExactly($dtString, $tz);
             },
             $expected
         );
@@ -344,33 +345,33 @@ class DaylightSavingsTest extends TestCase
     #[RequiresPhp('<=8.0.22')]
     public function testOffsetDecrementsMultipleRunDates(): void
     {
-        $expression = "0 1 * * 0";
+        $expression = '0 1 * * 0';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("Europe/London");
+        $tz = new \DateTimeZone('Europe/London');
 
         $expected = [
-            $this->createDateTimeExactly("2020-10-11 01:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-18 01:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-11-01 01:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-11-08 01:00+00:00", $tz),
+            $this->createDateTimeExactly('2020-10-11 01:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-18 01:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-11-01 01:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-11-08 01:00+00:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-10 00:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-10 00:00+01:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, false, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
         $expected = [
-            $this->createDateTimeExactly("2020-10-18 01:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 01:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-11-01 01:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-11-08 01:00+00:00", $tz),
+            $this->createDateTimeExactly('2020-10-18 01:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 01:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-11-01 01:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-11-08 01:00+00:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2020-11-12 00:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-11-12 00:00+00:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, true, true, $tz->getName());
 
         foreach ($expected as $dtExpected) {
@@ -380,49 +381,49 @@ class DaylightSavingsTest extends TestCase
 
     public function testOffsetIncrementsEveryOtherHour(): void
     {
-        $expression = "0 */2 * * *";
+        $expression = '0 */2 * * *';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("Europe/London");
+        $tz = new \DateTimeZone('Europe/London');
 
         $expected = [
-            $this->createDateTimeExactly("2021-03-27 22:00+00:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 00:00+00:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 04:00+01:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 06:00+01:00", $tz),
+            $this->createDateTimeExactly('2021-03-27 22:00+00:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 00:00+00:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 04:00+01:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 06:00+01:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-27 22:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-27 22:00+00:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, false, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 06:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 06:00+01:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, true, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
-        $expression = "0 1-23/2 * * *";
+        $expression = '0 1-23/2 * * *';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("Europe/London");
+        $tz = new \DateTimeZone('Europe/London');
 
         $expected = [
-            $this->createDateTimeExactly("2021-03-27 23:00+00:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 02:00+01:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 03:00+01:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 05:00+01:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 07:00+01:00", $tz),
+            $this->createDateTimeExactly('2021-03-27 23:00+00:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 02:00+01:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 03:00+01:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 05:00+01:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 07:00+01:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-27 23:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-27 23:00+00:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, false, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 07:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 07:00+01:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, true, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
@@ -436,65 +437,65 @@ class DaylightSavingsTest extends TestCase
     #[RequiresPhp('<=8.0.22')]
     public function testOffsetDecrementsEveryOtherHour(): void
     {
-        $expression = "0 */2 * * *";
+        $expression = '0 */2 * * *';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("Europe/London");
+        $tz = new \DateTimeZone('Europe/London');
 
         $expected = [
-            $this->createDateTimeExactly("2020-10-24 22:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 00:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 02:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 04:00+00:00", $tz),
+            $this->createDateTimeExactly('2020-10-24 22:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 00:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 02:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 04:00+00:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-24 22:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-24 22:00+01:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, false, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
         $expected = [
-            $this->createDateTimeExactly("2020-10-24 20:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-24 22:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 00:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 02:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 04:00+00:00", $tz),
+            $this->createDateTimeExactly('2020-10-24 20:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-24 22:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 00:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 02:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 04:00+00:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 04:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 04:00+00:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, true, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
-        $expression = "0 1-23/2 * * *";
+        $expression = '0 1-23/2 * * *';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("Europe/London");
+        $tz = new \DateTimeZone('Europe/London');
 
         $expected = [
-            $this->createDateTimeExactly("2020-10-24 23:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 03:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 05:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 07:00+00:00", $tz),
+            $this->createDateTimeExactly('2020-10-24 23:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 03:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 05:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 07:00+00:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-24 23:00+01:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-24 23:00+01:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, false, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
         $expected = [
-            $this->createDateTimeExactly("2020-10-25 01:00+01:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 01:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 03:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 05:00+00:00", $tz),
-            $this->createDateTimeExactly("2020-10-25 07:00+00:00", $tz),
+            $this->createDateTimeExactly('2020-10-25 01:00+01:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 01:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 03:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 05:00+00:00', $tz),
+            $this->createDateTimeExactly('2020-10-25 07:00+00:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-25 07:00+00:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-25 07:00+00:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, true, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
@@ -505,23 +506,23 @@ class DaylightSavingsTest extends TestCase
     {
         $expression = '@hourly';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("America/Asuncion");
+        $tz = new \DateTimeZone('America/Asuncion');
 
         $expected = [
-            $this->createDateTimeExactly("2021-03-27 22:00-03:00", $tz),
-            $this->createDateTimeExactly("2021-03-27 23:00-03:00", $tz),
-            $this->createDateTimeExactly("2021-03-27 23:00-04:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 00:00-04:00", $tz),
-            $this->createDateTimeExactly("2021-03-28 01:00-04:00", $tz),
+            $this->createDateTimeExactly('2021-03-27 22:00-03:00', $tz),
+            $this->createDateTimeExactly('2021-03-27 23:00-03:00', $tz),
+            $this->createDateTimeExactly('2021-03-27 23:00-04:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 00:00-04:00', $tz),
+            $this->createDateTimeExactly('2021-03-28 01:00-04:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-27 22:00-03:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-27 22:00-03:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, false, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
-        $dtCurrent = $this->createDateTimeExactly("2021-03-28 01:00-04:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2021-03-28 01:00-04:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, true, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
@@ -532,23 +533,23 @@ class DaylightSavingsTest extends TestCase
     {
         $expression = '@hourly';
         $cron = new CronExpression($expression);
-        $tz = new \DateTimeZone("America/Asuncion");
+        $tz = new \DateTimeZone('America/Asuncion');
 
         $expected = [
-            $this->createDateTimeExactly("2020-10-03 22:00-04:00", $tz),
-            $this->createDateTimeExactly("2020-10-03 23:00-04:00", $tz),
-            $this->createDateTimeExactly("2020-10-04 01:00-03:00", $tz),
-            $this->createDateTimeExactly("2020-10-04 02:00-03:00", $tz),
-            $this->createDateTimeExactly("2020-10-04 03:00-03:00", $tz),
+            $this->createDateTimeExactly('2020-10-03 22:00-04:00', $tz),
+            $this->createDateTimeExactly('2020-10-03 23:00-04:00', $tz),
+            $this->createDateTimeExactly('2020-10-04 01:00-03:00', $tz),
+            $this->createDateTimeExactly('2020-10-04 02:00-03:00', $tz),
+            $this->createDateTimeExactly('2020-10-04 03:00-03:00', $tz),
         ];
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-03 22:00-04:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-03 22:00-04:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, false, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
         }
 
-        $dtCurrent = $this->createDateTimeExactly("2020-10-04 03:00-03:00", $tz);
+        $dtCurrent = $this->createDateTimeExactly('2020-10-04 03:00-03:00', $tz);
         $actual = $cron->getMultipleRunDates(5, $dtCurrent, true, true, $tz->getName());
         foreach ($expected as $dtExpected) {
             $this->assertContainsEquals($dtExpected, $actual);
