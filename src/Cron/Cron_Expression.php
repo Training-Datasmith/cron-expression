@@ -154,7 +154,7 @@ class Cron_Expression implements \Stringable
      *
      * @throws \InvalidArgumentException if not a valid CRON expression
      */
-    public function set_expression(string $value): Cron_Expression
+    public function set_expression(string $value): static
     {
         $split = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
         if (!\is_array($split)) {
@@ -180,7 +180,7 @@ class Cron_Expression implements \Stringable
      *
      * @throws \InvalidArgumentException if the value is not valid for the part
      */
-    public function set_part(int $position, string $value): Cron_Expression
+    public function set_part(int $position, string $value): static
     {
         if (!$this->field_factory->get_field($position)->validate($value)) {
             throw new InvalidArgumentException('Invalid CRON field value ' . $value . ' at position ' . $position);
@@ -193,7 +193,7 @@ class Cron_Expression implements \Stringable
      *
      * @param int $maxIterationCount Max iteration count when searching for next run date
      */
-    public function set_max_iteration_count(int $max_iteration_count): Cron_Expression
+    public function set_max_iteration_count(int $max_iteration_count): static
     {
         $this->max_iteration_count = $max_iteration_count;
         return $this;
@@ -216,7 +216,7 @@ class Cron_Expression implements \Stringable
      * @throws \RuntimeException on too many iterations
      * @throws \Exception
      */
-    public function get_next_run_date($current_time = 'now', int $nth = 0, bool $allow_current_date = false, $time_zone = null): DateTime
+    public function get_next_run_date(string|DateTimeInterface $current_time = 'now', int $nth = 0, bool $allow_current_date = false, ?string $time_zone = null): DateTime
     {
         return $this->get_run_date($current_time, $nth, false, $allow_current_date, $time_zone);
     }
@@ -235,7 +235,7 @@ class Cron_Expression implements \Stringable
      *
      * @see \Cron\CronExpression::getNextRunDate
      */
-    public function get_previous_run_date($current_time = 'now', int $nth = 0, bool $allow_current_date = false, $time_zone = null): DateTime
+    public function get_previous_run_date(string|DateTimeInterface $current_time = 'now', int $nth = 0, bool $allow_current_date = false, ?string $time_zone = null): DateTime
     {
         return $this->get_run_date($current_time, $nth, true, $allow_current_date, $time_zone);
     }
@@ -251,7 +251,7 @@ class Cron_Expression implements \Stringable
      *
      * @return \DateTime[] Returns an array of run dates
      */
-    public function get_multiple_run_dates(int $total, $current_time = 'now', bool $invert = false, bool $allow_current_date = false, $time_zone = null): array
+    public function get_multiple_run_dates(int $total, string|DateTimeInterface|null $current_time = 'now', bool $invert = false, bool $allow_current_date = false, ?string $time_zone = null): array
     {
         $time_zone = $this->determine_time_zone($current_time, $time_zone);
         if ('now' === $current_time) {
@@ -283,13 +283,13 @@ class Cron_Expression implements \Stringable
     /**
      * Get all or part of the CRON expression.
      *
-     * @param int|string|null $part specify the part to retrieve or NULL to get the full
-     *                     cron schedule string
+     * @param int|null $part the position index (0=minute, 1=hour, 2=day, 3=month, 4=weekday)
+     *                       or NULL to return the full expression string
      *
-     * @return null|string Returns the CRON expression, a part of the
-     *                     CRON expression, or NULL if the part was specified but not found
+     * @return string|null the full expression string, a single field value, or NULL if the
+     *                     requested position does not exist in the expression
      */
-    public function get_expression($part = null): ?string
+    public function get_expression(?int $part = null): ?string
     {
         if (null === $part) {
             return implode(' ', $this->cron_parts);
@@ -305,7 +305,7 @@ class Cron_Expression implements \Stringable
      * @return string[]
      *   The array of parts that make up this expression.
      */
-    public function get_parts()
+    public function get_parts(): array
     {
         return $this->cron_parts;
     }
@@ -328,7 +328,7 @@ class Cron_Expression implements \Stringable
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
-    public function is_due($current_time = 'now', $time_zone = null): bool
+    public function is_due(string|DateTimeInterface $current_time = 'now', ?string $time_zone = null): bool
     {
         $time_zone = $this->determine_time_zone($current_time, $time_zone);
         if ('now' === $current_time) {
