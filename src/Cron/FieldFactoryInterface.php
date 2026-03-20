@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Cron;
 
-interface FieldFactoryInterface
+interface Field_Factory_Interface
 {
-    public function getField(int $position): FieldInterface;
+    public function get_field(int $position): Field_Interface;
 }

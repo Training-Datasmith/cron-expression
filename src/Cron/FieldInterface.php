@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Cron;
 
 use DateTimeInterface;
-
 /**
  * CRON field interface.
  */
-interface FieldInterface
+interface Field_Interface
 {
     /**
      * Check if the respective value of a DateTime field satisfies a CRON exp.
@@ -20,8 +18,7 @@ interface FieldInterface
      *
      * @return bool Returns TRUE if satisfied, FALSE otherwise
      */
-    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert): bool;
-
+    public function is_satisfied_by(DateTimeInterface $date, $value, bool $invert): bool;
     /**
      * When a CRON expression is not satisfied, this method is used to increment
      * or decrement a DateTime object by the unit of the cron field.
@@ -31,8 +28,7 @@ interface FieldInterface
      * @param bool $invert (optional) Set to TRUE to decrement
      * @param string|null $parts (optional) Set parts to use
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface;
-
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): Field_Interface;
     /**
      * Validates a CRON expression for a given field.
      *

@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Cron;
 
 use DateTimeInterface;
 use InvalidArgumentException;
-
 /**
  * Day of week field.  Allows: * / , - ? L #.
  *
@@ -20,109 +18,90 @@ use InvalidArgumentException;
  * number between one and five. It allows you to specify constructs such as
  * "the second Friday" of a given month.
  */
-class DayOfWeekField extends AbstractField
+class Day_Of_Week_Field extends Abstract_Field
 {
     /**
      * {@inheritdoc}
      */
-    protected $rangeStart = 0;
-
+    protected $range_start = 0;
     /**
      * {@inheritdoc}
      */
-    protected $rangeEnd = 7;
-
+    protected $range_end = 7;
     /**
      * @var array<int, int> Weekday range
      */
-    protected $nthRange;
-
+    protected $nth_range;
     /**
      * {@inheritdoc}
      */
     protected $literals = [1 => 'MON', 2 => 'TUE', 3 => 'WED', 4 => 'THU', 5 => 'FRI', 6 => 'SAT', 7 => 'SUN'];
-
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->nthRange = range(1, 5);
+        $this->nth_range = range(1, 5);
         parent::__construct();
     }
-
     /**
      * @inheritDoc
      */
-    public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert): bool
+    public function is_satisfied_by(DateTimeInterface $date, $value, bool $invert): bool
     {
         if ('?' === $value) {
             return true;
         }
-
         // Convert text day of the week values to integers
-        $value = $this->convertLiterals($value);
-
-        $currentYear = (int) $date->format('Y');
-        $currentMonth = (int) $date->format('m');
-        $lastDayOfMonth = (int) $date->format('t');
-
+        $value = $this->convert_literals($value);
+        $current_year = (int) $date->format('Y');
+        $current_month = (int) $date->format('m');
+        $last_day_of_month = (int) $date->format('t');
         // Find out if this is the last specific weekday of the month
-        if ($lPosition = strpos($value, 'L')) {
-            $weekday = (int) $this->convertLiterals(substr($value, 0, $lPosition));
+        if ($l_position = strpos($value, 'L')) {
+            $weekday = (int) $this->convert_literals(substr($value, 0, $l_position));
             $weekday %= 7;
-
-            $daysInMonth = (int) $date->format('t');
-            $remainingDaysInMonth = $daysInMonth - (int) $date->format('d');
-            return (($weekday === (int) $date->format('w')) && ($remainingDaysInMonth < 7));
+            $days_in_month = (int) $date->format('t');
+            $remaining_days_in_month = $days_in_month - (int) $date->format('d');
+            return $weekday === (int) $date->format('w') && $remaining_days_in_month < 7;
         }
-
         // Handle # hash tokens
         if (strpos($value, '#')) {
             [$weekday, $nth] = explode('#', $value);
-
             if (!is_numeric($nth)) {
                 throw new InvalidArgumentException("Hashed weekdays must be numeric, {$nth} given");
             }
             $nth = (int) $nth;
-
             // 0 and 7 are both Sunday, however 7 matches date('N') format ISO-8601
             if ('0' === $weekday) {
                 $weekday = 7;
             }
-
-            $weekday = (int) $this->convertLiterals((string) $weekday);
-
+            $weekday = (int) $this->convert_literals((string) $weekday);
             // Validate the hash fields
             if ($weekday < 0 || $weekday > 7) {
                 throw new InvalidArgumentException("Weekday must be a value between 0 and 7. {$weekday} given");
             }
-
-            if (!\in_array($nth, $this->nthRange, true)) {
+            if (!\in_array($nth, $this->nth_range, true)) {
                 throw new InvalidArgumentException("There are never more than 5 or less than 1 of a given weekday in a month, {$nth} given");
             }
-
             // The current weekday must match the targeted weekday to proceed
             if ((int) $date->format('N') !== $weekday) {
                 return false;
             }
-
             $tdate = clone $date;
-            $tdate = $tdate->setDate($currentYear, $currentMonth, 1);
-            $dayCount = 0;
-            $currentDay = 1;
-            while ($currentDay < $lastDayOfMonth + 1) {
+            $tdate = $tdate->set_date($current_year, $current_month, 1);
+            $day_count = 0;
+            $current_day = 1;
+            while ($current_day < $last_day_of_month + 1) {
                 if ((int) $tdate->format('N') === $weekday) {
-                    if (++$dayCount >= $nth) {
+                    if (++$day_count >= $nth) {
                         break;
                     }
                 }
-                $tdate = $tdate->setDate($currentYear, $currentMonth, ++$currentDay);
+                $tdate = $tdate->set_date($current_year, $current_month, ++$current_day);
             }
-
-            return (int) $date->format('j') === $currentDay;
+            return (int) $date->format('j') === $current_day;
         }
-
         // Handle day of the week values
         if (str_contains($value, '-')) {
             $parts = explode('-', $value);
@@ -133,59 +112,48 @@ class DayOfWeekField extends AbstractField
             }
             $value = implode('-', $parts);
         }
-
         // Test to see which Sunday to use -- 0 == 7 == Sunday
-        $format = \in_array(7, array_map(fn ($value) => (int) $value, str_split($value)), true) ? 'N' : 'w';
-        $fieldValue = (int) $date->format($format);
-
-        return $this->isSatisfied($fieldValue, $value);
+        $format = \in_array(7, array_map(fn($value) => (int) $value, str_split($value)), true) ? 'N' : 'w';
+        $field_value = (int) $date->format($format);
+        return $this->is_satisfied($field_value, $value);
     }
-
     /**
      * @inheritDoc
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): Field_Interface
     {
-        if (! $invert) {
+        if (!$invert) {
             $date = $date->add(new \DateInterval('P1D'));
-            $date = $date->setTime(0, 0);
+            $date = $date->set_time(0, 0);
         } else {
             $date = $date->sub(new \DateInterval('P1D'));
-            $date = $date->setTime(23, 59);
+            $date = $date->set_time(23, 59);
         }
-
         return $this;
     }
-
     /**
      * {@inheritdoc}
      */
     public function validate(string $value): bool
     {
-        $basicChecks = parent::validate($value);
-
-        if (!$basicChecks) {
+        $basic_checks = parent::validate($value);
+        if (!$basic_checks) {
             if ('?' === $value) {
                 return true;
             }
-
             // Handle the # value
             if (str_contains($value, '#')) {
                 $chunks = explode('#', $value);
-                $chunks[0] = $this->convertLiterals($chunks[0]);
-
-                if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && \in_array((int) $chunks[1], $this->nthRange, true)) {
+                $chunks[0] = $this->convert_literals($chunks[0]);
+                if (parent::validate($chunks[0]) && is_numeric($chunks[1]) && \in_array((int) $chunks[1], $this->nth_range, true)) {
                     return true;
                 }
             }
-
             if (preg_match('/^(.*)L$/', $value, $matches)) {
                 return $this->validate($matches[1]);
             }
-
             return false;
         }
-
-        return $basicChecks;
+        return $basic_checks;
     }
 }
