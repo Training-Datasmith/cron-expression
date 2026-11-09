@@ -18,99 +18,182 @@ $expected = [
 ];
 
 /**
- * @param array<string, array{alias: string, reference: string}> $map
+ * @return array<string, array{reference?: string, aliases?: list<string>}>
  */
-function assert_cluster_pins(array $map, string $installedPhp, string $installedJson): bool
+function load_versions_from_installed_php(string $installedPhpPath): array
 {
-  $failed = false;
+    /** @var array{versions?: array<string, array{reference?: string, aliases?: list<string>}>} $installed */
+    $installed = require $installedPhpPath;
 
-  $installedPhpPath = $installedPhp;
-  if (!is_readable($installedPhpPath)) {
-      fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.php not found; run composer update first.\n");
-      return false;
-  }
+    return $installed['versions'] ?? [];
+}
 
-  if (!is_readable($installedJson)) {
-      fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.json not found; run composer update first.\n");
-      return false;
-  }
+/**
+ * @return array<string, string>
+ */
+function load_json_references(string $installedJsonPath): array
+{
+    $raw = file_get_contents($installedJsonPath);
+    if ($raw === false) {
+        throw new RuntimeException("check-cluster-pins: could not read {$installedJsonPath}.");
+    }
 
-  /** @var array{versions: array<string, array{reference?: string, aliases?: list<string>}>} $installed */
-  $installed = require $installedPhpPath;
-  $versions = $installed['versions'] ?? [];
+    /** @var array{packages?: list<array<string, mixed>>, 'packages-dev'?: list<array<string, mixed>>} $jsonData */
+    $jsonData = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+    $jsonPackages = array_merge($jsonData['packages'] ?? [], $jsonData['packages-dev'] ?? []);
 
-  $raw = file_get_contents($installedJson);
-  if ($raw === false) {
-      fwrite(STDERR, "check-cluster-pins: could not read {$installedJson}.\n");
-      return false;
-  }
+    /** @var array<string, string> $jsonReferences */
+    $jsonReferences = [];
+    foreach ($jsonPackages as $package) {
+        if (!isset($package['name'], $package['source']['reference'])) {
+            continue;
+        }
+        $jsonReferences[(string) $package['name']] = strtolower((string) $package['source']['reference']);
+    }
 
-  /** @var array{packages?: list<array<string, mixed>>, 'packages-dev'?: list<array<string, mixed>>} $jsonData */
-  $jsonData = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
-  $jsonPackages = array_merge($jsonData['packages'] ?? [], $jsonData['packages-dev'] ?? []);
+    return $jsonReferences;
+}
 
-  /** @var array<string, string> $jsonReferences */
-  $jsonReferences = [];
-  foreach ($jsonPackages as $package) {
-      if (!isset($package['name'], $package['source']['reference'])) {
-          continue;
-      }
-      $jsonReferences[(string) $package['name']] = strtolower((string) $package['source']['reference']);
-  }
+/**
+ * @param array<string, array{alias: string, reference: string}> $map
+ * @param array<string, array{reference?: string, aliases?: list<string>}> $versions
+ * @return list<string>
+ */
+function collect_installed_php_pin_errors(array $map, array $versions): array
+{
+    $errors = [];
 
-  foreach ($map as $name => $want) {
-      if (!isset($versions[$name])) {
-          fwrite(STDERR, sprintf("check-cluster-pins: %s is not installed (installed.php).\n", $name));
-          $failed = true;
-          continue;
-      }
+    foreach ($map as $name => $want) {
+        if (!isset($versions[$name])) {
+            $errors[] = sprintf("check-cluster-pins: %s is not installed (installed.php).\n", $name);
+            continue;
+        }
 
-      $pkg = $versions[$name];
-      $aliases = $pkg['aliases'] ?? [];
-      if (!in_array($want['alias'], $aliases, true)) {
-          fwrite(STDERR, sprintf(
-              "check-cluster-pins: %s alias mismatch in installed.php (expected %s in aliases %s).\n",
-              $name,
-              $want['alias'],
-              json_encode($aliases)
-          ));
-          $failed = true;
-      }
+        $pkg = $versions[$name];
+        $aliases = $pkg['aliases'] ?? [];
+        if (!in_array($want['alias'], $aliases, true)) {
+            $errors[] = sprintf(
+                "check-cluster-pins: %s alias mismatch in installed.php (expected %s in aliases %s).\n",
+                $name,
+                $want['alias'],
+                json_encode($aliases)
+            );
+        }
 
-      $reference = $pkg['reference'] ?? null;
-      if (!is_string($reference) || $reference === '') {
-          fwrite(STDERR, sprintf("check-cluster-pins: %s has no reference in installed.php.\n", $name));
-          $failed = true;
-      } elseif (!hash_equals($want['reference'], $reference)) {
-          fwrite(STDERR, sprintf(
-              "check-cluster-pins: %s reference mismatch in installed.php (expected %s, got %s).\n",
-              $name,
-              $want['reference'],
-              $reference
-          ));
-          $failed = true;
-      }
+        $reference = $pkg['reference'] ?? null;
+        if (!is_string($reference) || $reference === '') {
+            $errors[] = sprintf("check-cluster-pins: %s has no reference in installed.php.\n", $name);
+        } elseif (!hash_equals($want['reference'], $reference)) {
+            $errors[] = sprintf(
+                "check-cluster-pins: %s reference mismatch in installed.php (expected %s, got %s).\n",
+                $name,
+                $want['reference'],
+                $reference
+            );
+        }
+    }
 
-      if (!isset($jsonReferences[$name])) {
-          fwrite(STDERR, sprintf("check-cluster-pins: %s is not installed (installed.json).\n", $name));
-          $failed = true;
-          continue;
-      }
+    return $errors;
+}
 
-      $jsonReference = $jsonReferences[$name];
-      $wantLower = strtolower($want['reference']);
-      if ($jsonReference !== $wantLower) {
-          fwrite(STDERR, sprintf(
-              "check-cluster-pins: %s source.reference mismatch in installed.json (expected %s, got %s).\n",
-              $name,
-              $want['reference'],
-              $jsonReference
-          ));
-          $failed = true;
-      }
-  }
+/**
+ * @param array<string, array{alias: string, reference: string}> $map
+ * @param array<string, string> $jsonReferences
+ * @return list<string>
+ */
+function collect_installed_json_pin_errors(array $map, array $jsonReferences): array
+{
+    $errors = [];
 
-  return !$failed;
+    foreach ($map as $name => $want) {
+        if (!isset($jsonReferences[$name])) {
+            $errors[] = sprintf("check-cluster-pins: %s is not installed (installed.json).\n", $name);
+            continue;
+        }
+
+        $jsonReference = $jsonReferences[$name];
+        $wantLower = strtolower($want['reference']);
+        if ($jsonReference !== $wantLower) {
+            $errors[] = sprintf(
+                "check-cluster-pins: %s source.reference mismatch in installed.json (expected %s, got %s).\n",
+                $name,
+                $want['reference'],
+                $jsonReference
+            );
+        }
+    }
+
+    return $errors;
+}
+
+/**
+ * @param list<string> $errors
+ */
+function emit_pin_errors(array $errors): void
+{
+    foreach ($errors as $error) {
+        fwrite(STDERR, $error);
+    }
+}
+
+/**
+ * @param array<string, array{alias: string, reference: string}> $map
+ * @param array<string, array{reference?: string, aliases?: list<string>}> $versions
+ */
+function assert_installed_php_pins(array $map, array $versions): bool
+{
+    $errors = collect_installed_php_pin_errors($map, $versions);
+    emit_pin_errors($errors);
+
+    return $errors === [];
+}
+
+/**
+ * @param array<string, array{alias: string, reference: string}> $map
+ * @param array<string, string> $jsonReferences
+ */
+function assert_installed_json_pins(array $map, array $jsonReferences): bool
+{
+    $errors = collect_installed_json_pin_errors($map, $jsonReferences);
+    emit_pin_errors($errors);
+
+    return $errors === [];
+}
+
+function assert_cluster_pins(string $installedPhp, string $installedJson): bool
+{
+    if (!is_readable($installedPhp)) {
+        fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.php not found; run composer update first.\n");
+        return false;
+    }
+
+    if (!is_readable($installedJson)) {
+        fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.json not found; run composer update first.\n");
+        return false;
+    }
+
+    global $expected;
+
+    return assert_installed_php_pins($expected, load_versions_from_installed_php($installedPhp))
+        && assert_installed_json_pins($expected, load_json_references($installedJson));
+}
+
+/**
+ * @param list<string> $errors
+ */
+function errors_reference_only(string $needle, array $errors): bool
+{
+    if ($errors === []) {
+        return false;
+    }
+
+    foreach ($errors as $error) {
+        if (!str_contains($error, $needle) || str_contains($error, $needle === 'installed.php' ? 'installed.json' : 'installed.php')) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -120,19 +203,31 @@ function run_wrong_sha_demos(array $baseExpected, string $installedPhp, string $
 {
     $allPassed = true;
 
-    $mapPhpstan = $baseExpected;
-    $mapPhpstan['phpstan/phpstan']['reference'] = str_repeat('0', 40);
-    if (assert_cluster_pins($mapPhpstan, $installedPhp, $installedJson)) {
+    $versions = load_versions_from_installed_php($installedPhp);
+    $versions['phpstan/phpstan']['reference'] = str_repeat('0', 40);
+    $phpErrors = collect_installed_php_pin_errors($baseExpected, $versions);
+
+    if ($phpErrors === []) {
         fwrite(STDERR, "check-cluster-pins: wrong-SHA demo for installed.php did not fail.\n");
+        $allPassed = false;
+    } elseif (!errors_reference_only('installed.php', $phpErrors)) {
+        fwrite(STDERR, "check-cluster-pins: wrong-SHA demo for installed.php must reference only installed.php.\n");
+        emit_pin_errors($phpErrors);
         $allPassed = false;
     } else {
         fwrite(STDOUT, "check-cluster-pins: wrong-SHA demo for installed.php failed as expected.\n");
     }
 
-    $mapInstaller = $baseExpected;
-    $mapInstaller['phpstan/extension-installer']['reference'] = str_repeat('f', 40);
-    if (assert_cluster_pins($mapInstaller, $installedPhp, $installedJson)) {
-        fwrite(STDERR, "check-cluster-pins: wrong-SHA demo for installed.json path did not fail.\n");
+    $jsonReferences = load_json_references($installedJson);
+    $jsonReferences['phpstan/extension-installer'] = str_repeat('f', 40);
+    $jsonErrors = collect_installed_json_pin_errors($baseExpected, $jsonReferences);
+
+    if ($jsonErrors === []) {
+        fwrite(STDERR, "check-cluster-pins: wrong-SHA demo for installed.json did not fail.\n");
+        $allPassed = false;
+    } elseif (!errors_reference_only('installed.json', $jsonErrors)) {
+        fwrite(STDERR, "check-cluster-pins: wrong-SHA demo for installed.json must reference only installed.json.\n");
+        emit_pin_errors($jsonErrors);
         $allPassed = false;
     } else {
         fwrite(STDOUT, "check-cluster-pins: wrong-SHA demo for installed.json failed as expected.\n");
@@ -149,7 +244,7 @@ $argv = $_SERVER['argv'] ?? [];
 $selfTest = in_array('--self-test-wrong-sha', $argv, true);
 
 if ($selfTest) {
-    if (!assert_cluster_pins($expected, $installedPhp, $installedJson)) {
+    if (!assert_cluster_pins($installedPhp, $installedJson)) {
         fwrite(STDERR, "check-cluster-pins: cannot run wrong-SHA demo before a successful pin check.\n");
         exit(1);
     }
@@ -160,7 +255,7 @@ if ($selfTest) {
     exit(0);
 }
 
-if (!assert_cluster_pins($expected, $installedPhp, $installedJson)) {
+if (!assert_cluster_pins($installedPhp, $installedJson)) {
     exit(1);
 }
 

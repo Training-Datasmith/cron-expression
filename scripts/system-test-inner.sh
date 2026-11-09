@@ -13,9 +13,9 @@ fail_deprecation_output() {
     local stripped
     stripped="$(mktemp)"
     sed -E 's/\x1b\[[0-9;]*[[:alpha:]]//g' "${file}" >"${stripped}"
-    if grep -E '(^|[[:space:]])(PHP[[:space:]]+)?(Warning|Deprecated|Notice):' "${stripped}" >/dev/null; then
+    if grep -E '^(PHP )?(Warning|Deprecated|Notice):' "${stripped}" >/dev/null; then
         echo "${label}: output contains Warning, Deprecated, or Notice lines" >&2
-        grep -E '(^|[[:space:]])(PHP[[:space:]]+)?(Warning|Deprecated|Notice):' "${stripped}" >&2 || true
+        grep -E '^(PHP )?(Warning|Deprecated|Notice):' "${stripped}" >&2 || true
         rm -f "${stripped}"
         exit 1
     fi
@@ -67,7 +67,7 @@ php scripts/check-rename-residual.php
 
 phpunit_out="/app/.system-test/phpunit.out"
 set +e
-vendor/bin/phpunit --colors=never --no-coverage >"${phpunit_out}" 2>&1
+vendor/bin/phpunit --colors=never --no-coverage --display-skipped >"${phpunit_out}" 2>&1
 phpunit_status=$?
 set -e
 cat "${phpunit_out}"
@@ -88,11 +88,14 @@ fail_deprecation_output "phpstan" "${phpstan_out}"
 if [[ ${phpstan_status} -ne 0 ]]; then
     exit "${phpstan_status}"
 fi
-if ! grep -F "[OK] No errors" "${phpstan_out}" >/dev/null; then
-    echo "phpstan: missing [OK] No errors" >&2
+phpstan_stripped="$(mktemp)"
+sed -E 's/\x1b\[[0-9;]*[[:alpha:]]//g' "${phpstan_out}" >"${phpstan_stripped}"
+if ! grep -Eq '^ \[OK\] No errors[[:space:]]*$' "${phpstan_stripped}"; then
+    echo "phpstan: missing anchored [OK] No errors line" >&2
+    rm -f "${phpstan_stripped}"
     exit 1
 fi
-rm -f "${phpstan_out}"
+rm -f "${phpstan_stripped}" "${phpstan_out}"
 
 php scripts/check-cluster-pins.php --self-test-wrong-sha
 php scripts/check-rename-residual.php --self-test

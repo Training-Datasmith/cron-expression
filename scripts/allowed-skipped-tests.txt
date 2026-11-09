@@ -1,0 +1,5 @@
+# Exact PHPUnit skip allowlist (id|reason). Count must remain 4; total Tests/Assertions unchanged.
+Cron\Tests\Daylight_Savings_Test::testOffsetDecrementsNextRunDateAllowCurrent|PHP <= 8.0.22 is required.
+Cron\Tests\Daylight_Savings_Test::testOffsetDecrementsNextRunDateDisallowCurrent|PHP <= 8.0.22 is required.
+Cron\Tests\Daylight_Savings_Test::testOffsetDecrementsMultipleRunDates|PHP <= 8.0.22 is required.
+Cron\Tests\Daylight_Savings_Test::testOffsetDecrementsEveryOtherHour|PHP <= 8.0.22 is required.

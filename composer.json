@@ -44,7 +44,7 @@
         "test": [
             "@php scripts/check-rename-residual.php",
             "@php scripts/check-cluster-pins.php",
-            "phpunit --colors=never --no-coverage"
+            "phpunit --colors=never --no-coverage --display-skipped"
         ]
     },
     "extra": {
