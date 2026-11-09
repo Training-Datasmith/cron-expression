@@ -33,7 +33,7 @@ class Minutes_Field extends Abstract_Field
      *
      * @param string|null                  $parts
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): Field_Interface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): static
     {
         if (is_null($parts)) {
             $date = $this->timezone_safe_modify($date, ($invert ? '-' : '+') . '1 minute');

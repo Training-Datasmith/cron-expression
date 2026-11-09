@@ -2,6 +2,8 @@ nbproject
 coverage
 phpunit.xml
 vendor
+.system-test
+scripts/.rename-residual-self-test-probe.php
 composer.phar
 composer.lock
 .idea

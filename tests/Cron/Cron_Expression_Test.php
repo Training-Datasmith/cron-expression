@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Cron\Tests;
 
-use Cron\CronExpression;
-use Cron\MonthField;
+use Cron\Cron_Expression;
+use Cron\Month_Field;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -20,65 +20,65 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Michael Dowling <mtdowling@gmail.com>
  */
-#[CoversFunction('getNextRunDate')]
-#[CoversClass(\Cron\DayOfMonthField::class)]
-#[CoversClass(\Cron\DayOfWeekField::class)]
-#[CoversClass(\Cron\MinutesField::class)]
-#[CoversClass(\Cron\HoursField::class)]
-#[CoversClass(\Cron\MonthField::class)]
-#[CoversClass(\Cron\CronExpression::class)]
-#[CoversFunction('getRunDate')]
+#[CoversFunction('get_next_run_date')]
+#[CoversClass(\Cron\Day_Of_Month_Field::class)]
+#[CoversClass(\Cron\Day_Of_Week_Field::class)]
+#[CoversClass(\Cron\Minutes_Field::class)]
+#[CoversClass(\Cron\Hours_Field::class)]
+#[CoversClass(\Cron\Month_Field::class)]
+#[CoversClass(\Cron\Cron_Expression::class)]
+#[CoversFunction('get_run_date')]
 #[CoversFunction('__construct')]
-#[CoversFunction('getExpression')]
-#[CoversFunction('setExpression')]
+#[CoversFunction('get_expression')]
+#[CoversFunction('set_expression')]
 #[CoversFunction('__toString')]
-#[CoversFunction('setPart')]
-#[CoversFunction('isDue')]
-#[CoversFunction('getPreviousRunDate')]
-#[CoversFunction('getMultipleRunDates')]
-#[CoversFunction('setMaxIterationCount')]
-#[CoversFunction('isValidExpression')]
-class CronExpressionTest extends TestCase
+#[CoversFunction('set_part')]
+#[CoversFunction('is_due')]
+#[CoversFunction('get_previous_run_date')]
+#[CoversFunction('get_multiple_run_dates')]
+#[CoversFunction('set_max_iteration_count')]
+#[CoversFunction('is_valid_expression')]
+class Cron_Expression_Test extends TestCase
 {
     public function testConstructorRecognizesTemplates(): void
     {
-        $this->assertSame('0 0 1 1 *', (new CronExpression('@annually'))->getExpression());
-        $this->assertSame('0 0 1 1 *', (new CronExpression('@yearly'))->getExpression());
-        $this->assertSame('0 0 * * 0', (new CronExpression('@weekly'))->getExpression());
-        $this->assertSame('0 0 * * *', (new CronExpression('@daily'))->getExpression());
-        $this->assertSame('0 0 * * *', (new CronExpression('@midnight'))->getExpression());
+        $this->assertSame('0 0 1 1 *', (new Cron_Expression('@annually'))->get_expression());
+        $this->assertSame('0 0 1 1 *', (new Cron_Expression('@yearly'))->get_expression());
+        $this->assertSame('0 0 * * 0', (new Cron_Expression('@weekly'))->get_expression());
+        $this->assertSame('0 0 * * *', (new Cron_Expression('@daily'))->get_expression());
+        $this->assertSame('0 0 * * *', (new Cron_Expression('@midnight'))->get_expression());
     }
 
     public function testParsesCronSchedule(): void
     {
         // '2010-09-10 12:00:00'
-        $cron = new CronExpression('1 2-4 * 4,5,6 */3');
-        $this->assertSame('1', $cron->getExpression(CronExpression::MINUTE));
-        $this->assertSame('2-4', $cron->getExpression(CronExpression::HOUR));
-        $this->assertSame('*', $cron->getExpression(CronExpression::DAY));
-        $this->assertSame('4,5,6', $cron->getExpression(CronExpression::MONTH));
-        $this->assertSame('*/3', $cron->getExpression(CronExpression::WEEKDAY));
-        $this->assertSame('1 2-4 * 4,5,6 */3', $cron->getExpression());
+        $cron = new Cron_Expression('1 2-4 * 4,5,6 */3');
+        $this->assertSame('1', $cron->get_expression(Cron_Expression::MINUTE));
+        $this->assertSame('2-4', $cron->get_expression(Cron_Expression::HOUR));
+        $this->assertSame('*', $cron->get_expression(Cron_Expression::DAY));
+        $this->assertSame('4,5,6', $cron->get_expression(Cron_Expression::MONTH));
+        $this->assertSame('*/3', $cron->get_expression(Cron_Expression::WEEKDAY));
+        $this->assertSame('1 2-4 * 4,5,6 */3', $cron->get_expression());
         $this->assertSame('1 2-4 * 4,5,6 */3', (string) $cron);
-        $this->assertNull($cron->getExpression('foo'));
+        $this->assertNull($cron->get_expression('foo'));
     }
 
     public function testParsesCronScheduleThrowsAnException(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid CRON field value A at position 0');
-        new CronExpression('A 1 2 3 4');
+        new Cron_Expression('A 1 2 3 4');
     }
 
     #[DataProvider('scheduleWithDifferentSeparatorsProvider')]
     public function testParsesCronScheduleWithAnySpaceCharsAsSeparators(mixed $schedule, array $expected): void
     {
-        $cron = new CronExpression($schedule);
-        $this->assertSame($expected[0], $cron->getExpression(CronExpression::MINUTE));
-        $this->assertSame($expected[1], $cron->getExpression(CronExpression::HOUR));
-        $this->assertSame($expected[2], $cron->getExpression(CronExpression::DAY));
-        $this->assertSame($expected[3], $cron->getExpression(CronExpression::MONTH));
-        $this->assertSame($expected[4], $cron->getExpression(CronExpression::WEEKDAY));
+        $cron = new Cron_Expression($schedule);
+        $this->assertSame($expected[0], $cron->get_expression(Cron_Expression::MINUTE));
+        $this->assertSame($expected[1], $cron->get_expression(Cron_Expression::HOUR));
+        $this->assertSame($expected[2], $cron->get_expression(Cron_Expression::DAY));
+        $this->assertSame($expected[3], $cron->get_expression(Cron_Expression::MONTH));
+        $this->assertSame($expected[4], $cron->get_expression(Cron_Expression::WEEKDAY));
     }
 
     /**
@@ -100,15 +100,15 @@ class CronExpressionTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         // Only four values
-        $cron = new CronExpression('* * * 1');
+        $cron = new Cron_Expression('* * * 1');
     }
 
     public function testInvalidPartsWillFail(): void
     {
         $this->expectException(InvalidArgumentException::class);
         // Only four values
-        $cron = new CronExpression('* * * * *');
-        $cron->setPart(1, 'abc');
+        $cron = new Cron_Expression('* * * * *');
+        $cron->set_part(1, 'abc');
     }
 
     /**
@@ -206,13 +206,13 @@ class CronExpressionTest extends TestCase
      * @param mixed $schedule
      * @param mixed $relativeTime
      * @param mixed $nextRun
-     * @param mixed $isDue
+     * @param mixed $expected_due
      */
     #[DataProvider('scheduleProvider')]
-    public function testDeterminesIfCronIsDue($schedule, $relativeTime, $nextRun, $isDue): void
+    public function testDeterminesIfCronIsDue($schedule, $relativeTime, $nextRun, $expected_due): void
     {
         // Test next run date
-        $cron = new CronExpression($schedule);
+        $cron = new Cron_Expression($schedule);
         if (\is_string($relativeTime)) {
             $relativeTime = new DateTime($relativeTime);
         } elseif (\is_int($relativeTime)) {
@@ -226,85 +226,85 @@ class CronExpressionTest extends TestCase
             $nextRunDate = new DateTime();
             $nextRunDate->setTimestamp($nextRun);
         }
-        $this->assertSame($isDue, $cron->isDue($relativeTime));
-        $next = $cron->getNextRunDate($relativeTime, 0, true);
+        $this->assertSame($expected_due, $cron->is_due($relativeTime));
+        $next = $cron->get_next_run_date($relativeTime, 0, true);
 
         $this->assertEquals($nextRunDate, $next);
     }
 
     public function testIsDueHandlesDifferentDates(): void
     {
-        $cron = new CronExpression('* * * * *');
-        $this->assertTrue($cron->isDue());
-        $this->assertTrue($cron->isDue('now'));
-        $this->assertTrue($cron->isDue(new DateTime('now')));
-        $this->assertTrue($cron->isDue(date('Y-m-d H:i')));
-        $this->assertTrue($cron->isDue(new DateTimeImmutable('now')));
+        $cron = new Cron_Expression('* * * * *');
+        $this->assertTrue($cron->is_due());
+        $this->assertTrue($cron->is_due('now'));
+        $this->assertTrue($cron->is_due(new DateTime('now')));
+        $this->assertTrue($cron->is_due(date('Y-m-d H:i')));
+        $this->assertTrue($cron->is_due(new DateTimeImmutable('now')));
     }
 
     public function testIsDueHandlesDifferentDefaultTimezones(): void
     {
         $originalTimezone = date_default_timezone_get();
-        $cron = new CronExpression('0 15 * * 3'); //Wednesday at 15:00
+        $cron = new Cron_Expression('0 15 * * 3'); //Wednesday at 15:00
         $date = '2014-01-01 15:00'; //Wednesday
 
         date_default_timezone_set('UTC');
-        $this->assertTrue($cron->isDue(new DateTime($date), 'UTC'));
-        $this->assertFalse($cron->isDue(new DateTime($date), 'Europe/Amsterdam'));
-        $this->assertFalse($cron->isDue(new DateTime($date), 'Asia/Tokyo'));
+        $this->assertTrue($cron->is_due(new DateTime($date), 'UTC'));
+        $this->assertFalse($cron->is_due(new DateTime($date), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->is_due(new DateTime($date), 'Asia/Tokyo'));
 
         date_default_timezone_set('Europe/Amsterdam');
-        $this->assertFalse($cron->isDue(new DateTime($date), 'UTC'));
-        $this->assertTrue($cron->isDue(new DateTime($date), 'Europe/Amsterdam'));
-        $this->assertFalse($cron->isDue(new DateTime($date), 'Asia/Tokyo'));
+        $this->assertFalse($cron->is_due(new DateTime($date), 'UTC'));
+        $this->assertTrue($cron->is_due(new DateTime($date), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->is_due(new DateTime($date), 'Asia/Tokyo'));
 
         date_default_timezone_set('Asia/Tokyo');
-        $this->assertFalse($cron->isDue(new DateTime($date), 'UTC'));
-        $this->assertFalse($cron->isDue(new DateTime($date), 'Europe/Amsterdam'));
-        $this->assertTrue($cron->isDue(new DateTime($date), 'Asia/Tokyo'));
+        $this->assertFalse($cron->is_due(new DateTime($date), 'UTC'));
+        $this->assertFalse($cron->is_due(new DateTime($date), 'Europe/Amsterdam'));
+        $this->assertTrue($cron->is_due(new DateTime($date), 'Asia/Tokyo'));
 
         date_default_timezone_set($originalTimezone);
     }
 
     public function testIsDueHandlesDifferentSuppliedTimezones(): void
     {
-        $cron = new CronExpression('0 15 * * 3'); //Wednesday at 15:00
+        $cron = new Cron_Expression('0 15 * * 3'); //Wednesday at 15:00
         $date = '2014-01-01 15:00'; //Wednesday
 
-        $this->assertTrue($cron->isDue(new DateTime($date, new DateTimeZone('UTC')), 'UTC'));
-        $this->assertFalse($cron->isDue(new DateTime($date, new DateTimeZone('UTC')), 'Europe/Amsterdam'));
-        $this->assertFalse($cron->isDue(new DateTime($date, new DateTimeZone('UTC')), 'Asia/Tokyo'));
+        $this->assertTrue($cron->is_due(new DateTime($date, new DateTimeZone('UTC')), 'UTC'));
+        $this->assertFalse($cron->is_due(new DateTime($date, new DateTimeZone('UTC')), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->is_due(new DateTime($date, new DateTimeZone('UTC')), 'Asia/Tokyo'));
 
-        $this->assertFalse($cron->isDue(new DateTime($date, new DateTimeZone('Europe/Amsterdam')), 'UTC'));
-        $this->assertTrue($cron->isDue(new DateTime($date, new DateTimeZone('Europe/Amsterdam')), 'Europe/Amsterdam'));
-        $this->assertFalse($cron->isDue(new DateTime($date, new DateTimeZone('Europe/Amsterdam')), 'Asia/Tokyo'));
+        $this->assertFalse($cron->is_due(new DateTime($date, new DateTimeZone('Europe/Amsterdam')), 'UTC'));
+        $this->assertTrue($cron->is_due(new DateTime($date, new DateTimeZone('Europe/Amsterdam')), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->is_due(new DateTime($date, new DateTimeZone('Europe/Amsterdam')), 'Asia/Tokyo'));
 
-        $this->assertFalse($cron->isDue(new DateTime($date, new DateTimeZone('Asia/Tokyo')), 'UTC'));
-        $this->assertFalse($cron->isDue(new DateTime($date, new DateTimeZone('Asia/Tokyo')), 'Europe/Amsterdam'));
-        $this->assertTrue($cron->isDue(new DateTime($date, new DateTimeZone('Asia/Tokyo')), 'Asia/Tokyo'));
+        $this->assertFalse($cron->is_due(new DateTime($date, new DateTimeZone('Asia/Tokyo')), 'UTC'));
+        $this->assertFalse($cron->is_due(new DateTime($date, new DateTimeZone('Asia/Tokyo')), 'Europe/Amsterdam'));
+        $this->assertTrue($cron->is_due(new DateTime($date, new DateTimeZone('Asia/Tokyo')), 'Asia/Tokyo'));
     }
 
     public function testIsDueHandlesDifferentTimezonesAsArgument(): void
     {
-        $cron = new CronExpression('0 15 * * 3'); //Wednesday at 15:00
+        $cron = new Cron_Expression('0 15 * * 3'); //Wednesday at 15:00
         $date = '2014-01-01 15:00'; //Wednesday
         $utc = new \DateTimeZone('UTC');
         $amsterdam = new \DateTimeZone('Europe/Amsterdam');
         $tokyo = new \DateTimeZone('Asia/Tokyo');
-        $this->assertTrue($cron->isDue(new DateTime($date, $utc), 'UTC'));
-        $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam), 'UTC'));
-        $this->assertFalse($cron->isDue(new DateTime($date, $tokyo), 'UTC'));
-        $this->assertFalse($cron->isDue(new DateTime($date, $utc), 'Europe/Amsterdam'));
-        $this->assertTrue($cron->isDue(new DateTime($date, $amsterdam), 'Europe/Amsterdam'));
-        $this->assertFalse($cron->isDue(new DateTime($date, $tokyo), 'Europe/Amsterdam'));
-        $this->assertFalse($cron->isDue(new DateTime($date, $utc), 'Asia/Tokyo'));
-        $this->assertFalse($cron->isDue(new DateTime($date, $amsterdam), 'Asia/Tokyo'));
-        $this->assertTrue($cron->isDue(new DateTime($date, $tokyo), 'Asia/Tokyo'));
+        $this->assertTrue($cron->is_due(new DateTime($date, $utc), 'UTC'));
+        $this->assertFalse($cron->is_due(new DateTime($date, $amsterdam), 'UTC'));
+        $this->assertFalse($cron->is_due(new DateTime($date, $tokyo), 'UTC'));
+        $this->assertFalse($cron->is_due(new DateTime($date, $utc), 'Europe/Amsterdam'));
+        $this->assertTrue($cron->is_due(new DateTime($date, $amsterdam), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->is_due(new DateTime($date, $tokyo), 'Europe/Amsterdam'));
+        $this->assertFalse($cron->is_due(new DateTime($date, $utc), 'Asia/Tokyo'));
+        $this->assertFalse($cron->is_due(new DateTime($date, $amsterdam), 'Asia/Tokyo'));
+        $this->assertTrue($cron->is_due(new DateTime($date, $tokyo), 'Asia/Tokyo'));
     }
 
     public function testRecognisesTimezonesAsPartOfDateTime(): void
     {
-        $cron = new CronExpression('0 7 * * *');
+        $cron = new Cron_Expression('0 7 * * *');
         $tzCron = 'America/New_York';
         $tzServer = new \DateTimeZone('Europe/London');
 
@@ -313,65 +313,65 @@ class CronExpressionTest extends TestCase
             throw new InvalidArgumentException('invalid current date time');
         }
 
-        $dtPrev = $cron->getPreviousRunDate($dtCurrent, 0, true, $tzCron);
+        $dtPrev = $cron->get_previous_run_date($dtCurrent, 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
         $dtCurrent = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         if (!$dtCurrent instanceof \DateTimeImmutable) {
             throw new InvalidArgumentException('invalid current date time immutable');
         }
-        $dtPrev = $cron->getPreviousRunDate($dtCurrent, 0, true, $tzCron);
+        $dtPrev = $cron->get_previous_run_date($dtCurrent, 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
         $dtCurrent = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         if (!$dtCurrent instanceof \DateTimeImmutable) {
             throw new InvalidArgumentException('invalid current date time immutable');
         }
-        $dtPrev = $cron->getPreviousRunDate($dtCurrent->format('c'), 0, true, $tzCron);
+        $dtPrev = $cron->get_previous_run_date($dtCurrent->format('c'), 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
 
         $dtCurrent = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', '2017-10-17 10:00:00', $tzServer);
         if (!$dtCurrent instanceof \DateTimeImmutable) {
             throw new InvalidArgumentException('invalid current date time immutable');
         }
-        $dtPrev = $cron->getPreviousRunDate($dtCurrent->format('\\@U'), 0, true, $tzCron);
+        $dtPrev = $cron->get_previous_run_date($dtCurrent->format('\\@U'), 0, true, $tzCron);
         $this->assertEquals('1508151600 : 2017-10-16T07:00:00-04:00 : America/New_York', $dtPrev->format('U \\: c \\: e'));
     }
 
     public function testCanGetPreviousRunDates(): void
     {
-        $cron = new CronExpression('* * * * *');
-        $next = $cron->getNextRunDate('now');
-        $two = $cron->getNextRunDate('now', 1);
-        $this->assertEquals($next, $cron->getPreviousRunDate($two));
+        $cron = new Cron_Expression('* * * * *');
+        $next = $cron->get_next_run_date('now');
+        $two = $cron->get_next_run_date('now', 1);
+        $this->assertEquals($next, $cron->get_previous_run_date($two));
 
-        $cron = new CronExpression('* */2 * * *');
-        $next = $cron->getNextRunDate('now');
-        $two = $cron->getNextRunDate('now', 1);
-        $this->assertEquals($next, $cron->getPreviousRunDate($two));
+        $cron = new Cron_Expression('* */2 * * *');
+        $next = $cron->get_next_run_date('now');
+        $two = $cron->get_next_run_date('now', 1);
+        $this->assertEquals($next, $cron->get_previous_run_date($two));
 
-        $cron = new CronExpression('* * * */2 *');
-        $next = $cron->getNextRunDate('now');
-        $two = $cron->getNextRunDate('now', 1);
-        $this->assertEquals($next, $cron->getPreviousRunDate($two));
+        $cron = new Cron_Expression('* * * */2 *');
+        $next = $cron->get_next_run_date('now');
+        $two = $cron->get_next_run_date('now', 1);
+        $this->assertEquals($next, $cron->get_previous_run_date($two));
     }
 
     public function testProvidesMultipleRunDates(): void
     {
-        $cron = new CronExpression('*/2 * * * *');
+        $cron = new Cron_Expression('*/2 * * * *');
         $this->assertEquals([
             new DateTime('2008-11-09 00:00:00'),
             new DateTime('2008-11-09 00:02:00'),
             new DateTime('2008-11-09 00:04:00'),
             new DateTime('2008-11-09 00:06:00'),
-        ], $cron->getMultipleRunDates(4, '2008-11-09 00:00:00', false, true));
+        ], $cron->get_multiple_run_dates(4, '2008-11-09 00:00:00', false, true));
     }
 
     public function testProvidesMultipleRunDatesForTheFarFuture(): void
     {
         // Fails with the default 1000 iteration limit
-        $cron = new CronExpression('0 0 12 1 *');
-        $cron->setMaxIterationCount(2000);
+        $cron = new Cron_Expression('0 0 12 1 *');
+        $cron->set_max_iteration_count(2000);
         $this->assertEquals([
             new DateTime('2016-01-12 00:00:00'),
             new DateTime('2017-01-12 00:00:00'),
@@ -382,33 +382,33 @@ class CronExpressionTest extends TestCase
             new DateTime('2022-01-12 00:00:00'),
             new DateTime('2023-01-12 00:00:00'),
             new DateTime('2024-01-12 00:00:00'),
-        ], $cron->getMultipleRunDates(9, '2015-04-28 00:00:00', false, true));
+        ], $cron->get_multiple_run_dates(9, '2015-04-28 00:00:00', false, true));
     }
 
     public function testCanIterateOverNextRuns(): void
     {
-        $cron = new CronExpression('@weekly');
-        $nextRun = $cron->getNextRunDate('2008-11-09 08:00:00');
+        $cron = new Cron_Expression('@weekly');
+        $nextRun = $cron->get_next_run_date('2008-11-09 08:00:00');
         $this->assertEquals($nextRun, new DateTime('2008-11-16 00:00:00'));
 
         // You can iterate over them
-        $nextRun = $cron->getNextRunDate($cron->getNextRunDate('2008-11-09 00:00:00', 1, true), 1, true);
+        $nextRun = $cron->get_next_run_date($cron->get_next_run_date('2008-11-09 00:00:00', 1, true), 1, true);
         $this->assertEquals($nextRun, new DateTime('2008-11-23 00:00:00'));
 
         // You can skip more than one
-        $nextRun = $cron->getNextRunDate('2008-11-09 00:00:00', 2, true);
+        $nextRun = $cron->get_next_run_date('2008-11-09 00:00:00', 2, true);
         $this->assertEquals($nextRun, new DateTime('2008-11-23 00:00:00'));
-        $nextRun = $cron->getNextRunDate('2008-11-09 00:00:00', 3, true);
+        $nextRun = $cron->get_next_run_date('2008-11-09 00:00:00', 3, true);
         $this->assertEquals($nextRun, new DateTime('2008-11-30 00:00:00'));
     }
 
     public function testGetRunDateHandlesDifferentDates(): void
     {
-        $cron = new CronExpression('@weekly');
+        $cron = new Cron_Expression('@weekly');
         $date = new DateTime('2019-03-10 00:00:00');
-        $this->assertEquals($date, $cron->getNextRunDate('2019-03-03 08:00:00'));
-        $this->assertEquals($date, $cron->getNextRunDate(new DateTime('2019-03-03 08:00:00')));
-        $this->assertEquals($date, $cron->getNextRunDate(new DateTimeImmutable('2019-03-03 08:00:00')));
+        $this->assertEquals($date, $cron->get_next_run_date('2019-03-03 08:00:00'));
+        $this->assertEquals($date, $cron->get_next_run_date(new DateTime('2019-03-03 08:00:00')));
+        $this->assertEquals($date, $cron->get_next_run_date(new DateTimeImmutable('2019-03-03 08:00:00')));
     }
 
     /**
@@ -420,41 +420,41 @@ class CronExpressionTest extends TestCase
      */
     public function testGetRunDateHandlesSimultaneousDayOfMonthAndDayOfWeek(): void
     {
-        $cron = new CronExpression('0 0 13 * 3');
+        $cron = new Cron_Expression('0 0 13 * 3');
         $date = new DateTime('2021-07-15 00:00:00');
-        $this->assertEquals(new DateTime('2021-07-21 00:00:00'), $cron->getNextRunDate($date));
-        $this->assertEquals(new DateTime('2021-07-14 00:00:00'), $cron->getPreviousRunDate($date));
+        $this->assertEquals(new DateTime('2021-07-21 00:00:00'), $cron->get_next_run_date($date));
+        $this->assertEquals(new DateTime('2021-07-14 00:00:00'), $cron->get_previous_run_date($date));
     }
 
     public function testSkipsCurrentDateByDefault(): void
     {
-        $cron = new CronExpression('* * * * *');
+        $cron = new Cron_Expression('* * * * *');
         $current = new DateTime('now');
-        $next = $cron->getNextRunDate($current);
-        $nextPrev = $cron->getPreviousRunDate($next);
+        $next = $cron->get_next_run_date($current);
+        $nextPrev = $cron->get_previous_run_date($next);
         $this->assertSame($current->format('Y-m-d H:i:00'), $nextPrev->format('Y-m-d H:i:s'));
     }
 
     #[Ticket('7')]
     public function testStripsForSeconds(): void
     {
-        $cron = new CronExpression('* * * * *');
+        $cron = new Cron_Expression('* * * * *');
         $current = new DateTime('2011-09-27 10:10:54');
-        $this->assertSame('2011-09-27 10:11:00', $cron->getNextRunDate($current)->format('Y-m-d H:i:s'));
+        $this->assertSame('2011-09-27 10:11:00', $cron->get_next_run_date($current)->format('Y-m-d H:i:s'));
     }
 
     public function testFixesPhpBugInDateIntervalMonth(): void
     {
-        $cron = new CronExpression('0 0 27 JAN *');
-        $this->assertSame('2011-01-27 00:00:00', $cron->getPreviousRunDate('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
+        $cron = new Cron_Expression('0 0 27 JAN *');
+        $this->assertSame('2011-01-27 00:00:00', $cron->get_previous_run_date('2011-08-22 00:00:00')->format('Y-m-d H:i:s'));
     }
 
     public function testIssue29(): void
     {
-        $cron = new CronExpression('@weekly');
+        $cron = new Cron_Expression('@weekly');
         $this->assertSame(
             '2013-03-10 00:00:00',
-            $cron->getPreviousRunDate('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
+            $cron->get_previous_run_date('2013-03-17 00:00:00')->format('Y-m-d H:i:s')
         );
     }
 
@@ -463,59 +463,59 @@ class CronExpressionTest extends TestCase
      */
     public function testIssue20(): void
     {
-        $e = new CronExpression('* * * * MON#1');
-        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
-        $this->assertFalse($e->isDue(new DateTime('2014-04-14 00:00:00')));
-        $this->assertFalse($e->isDue(new DateTime('2014-04-21 00:00:00')));
+        $e = new Cron_Expression('* * * * MON#1');
+        $this->assertTrue($e->is_due(new DateTime('2014-04-07 00:00:00')));
+        $this->assertFalse($e->is_due(new DateTime('2014-04-14 00:00:00')));
+        $this->assertFalse($e->is_due(new DateTime('2014-04-21 00:00:00')));
 
-        $e->setExpression('* * * * SAT#2');
-        $this->assertFalse($e->isDue(new DateTime('2014-04-05 00:00:00')));
-        $this->assertTrue($e->isDue(new DateTime('2014-04-12 00:00:00')));
-        $this->assertFalse($e->isDue(new DateTime('2014-04-19 00:00:00')));
+        $e->set_expression('* * * * SAT#2');
+        $this->assertFalse($e->is_due(new DateTime('2014-04-05 00:00:00')));
+        $this->assertTrue($e->is_due(new DateTime('2014-04-12 00:00:00')));
+        $this->assertFalse($e->is_due(new DateTime('2014-04-19 00:00:00')));
 
-        $e->setExpression('* * * * SUN#3');
-        $this->assertFalse($e->isDue(new DateTime('2014-04-13 00:00:00')));
-        $this->assertTrue($e->isDue(new DateTime('2014-04-20 00:00:00')));
-        $this->assertFalse($e->isDue(new DateTime('2014-04-27 00:00:00')));
+        $e->set_expression('* * * * SUN#3');
+        $this->assertFalse($e->is_due(new DateTime('2014-04-13 00:00:00')));
+        $this->assertTrue($e->is_due(new DateTime('2014-04-20 00:00:00')));
+        $this->assertFalse($e->is_due(new DateTime('2014-04-27 00:00:00')));
     }
 
     public function testKeepOriginalTime(): void
     {
         $now = new \DateTime();
         $strNow = $now->format(DateTime::ISO8601);
-        $cron = new CronExpression('0 0 * * *');
-        $cron->getPreviousRunDate($now);
+        $cron = new Cron_Expression('0 0 * * *');
+        $cron->get_previous_run_date($now);
         $this->assertSame($strNow, $now->format(DateTime::ISO8601));
     }
 
     public function testValidationWorks(): void
     {
         // Invalid. Only four values
-        $this->assertFalse(CronExpression::isValidExpression('* * * 1'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('* * * 1'));
         // Valid
-        $this->assertTrue(CronExpression::isValidExpression('* * * * 1'));
+        $this->assertTrue(Cron_Expression::is_valid_expression('* * * * 1'));
 
         // Issue #156, 13 is an invalid month
-        $this->assertFalse(CronExpression::isValidExpression('* * * 13 * '));
+        $this->assertFalse(Cron_Expression::is_valid_expression('* * * 13 * '));
 
         // Issue #155, 90 is an invalid second
-        $this->assertFalse(CronExpression::isValidExpression('90 * * * *'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('90 * * * *'));
 
         // Issue #154, 24 is an invalid hour
-        $this->assertFalse(CronExpression::isValidExpression('0 24 1 12 0'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('0 24 1 12 0'));
 
         // Issue #125, this is just all sorts of wrong
-        $this->assertFalse(CronExpression::isValidExpression('990 14 * * mon-fri0345345'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('990 14 * * mon-fri0345345'));
 
         // Issue #137, multiple question marks are not allowed
-        $this->assertFalse(CronExpression::isValidExpression('0 8 ? * ?'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('0 8 ? * ?'));
         // Question marks are only allowed in dom and dow part
-        $this->assertFalse(CronExpression::isValidExpression('? * * * *'));
-        $this->assertFalse(CronExpression::isValidExpression('* ? * * *'));
-        $this->assertFalse(CronExpression::isValidExpression('* * * ? *'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('? * * * *'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('* ? * * *'));
+        $this->assertFalse(Cron_Expression::is_valid_expression('* * * ? *'));
 
         // see https://github.com/dragonmantank/cron-expression/issues/5
-        $this->assertTrue(CronExpression::isValidExpression('2,17,35,47 5-7,11-13 * * *'));
+        $this->assertTrue(Cron_Expression::is_valid_expression('2,17,35,47 5-7,11-13 * * *'));
     }
 
     /**
@@ -526,20 +526,20 @@ class CronExpressionTest extends TestCase
      */
     public function testDoubleZeroIsValid(): void
     {
-        $this->assertTrue(CronExpression::isValidExpression('00 * * * *'));
-        $this->assertTrue(CronExpression::isValidExpression('01 * * * *'));
-        $this->assertTrue(CronExpression::isValidExpression('* 00 * * *'));
-        $this->assertTrue(CronExpression::isValidExpression('* 01 * * *'));
+        $this->assertTrue(Cron_Expression::is_valid_expression('00 * * * *'));
+        $this->assertTrue(Cron_Expression::is_valid_expression('01 * * * *'));
+        $this->assertTrue(Cron_Expression::is_valid_expression('* 00 * * *'));
+        $this->assertTrue(Cron_Expression::is_valid_expression('* 01 * * *'));
 
-        $e = new CronExpression('00 * * * *');
-        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
-        $e->setExpression('01 * * * *');
-        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:01:00')));
+        $e = new Cron_Expression('00 * * * *');
+        $this->assertTrue($e->is_due(new DateTime('2014-04-07 00:00:00')));
+        $e->set_expression('01 * * * *');
+        $this->assertTrue($e->is_due(new DateTime('2014-04-07 00:01:00')));
 
-        $e->setExpression('* 00 * * *');
-        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
-        $e->setExpression('* 01 * * *');
-        $this->assertTrue($e->isDue(new DateTime('2014-04-07 01:00:00')));
+        $e->set_expression('* 00 * * *');
+        $this->assertTrue($e->is_due(new DateTime('2014-04-07 00:00:00')));
+        $e->set_expression('* 01 * * *');
+        $this->assertTrue($e->is_due(new DateTime('2014-04-07 01:00:00')));
     }
 
     /**
@@ -551,17 +551,17 @@ class CronExpressionTest extends TestCase
      */
     public function testRangesWrapAroundWithLargeSteps(): void
     {
-        $f = new MonthField();
+        $f = new Month_Field();
         $this->assertTrue($f->validate('*/123'));
-        $this->assertSame([4], $f->getRangeForExpression('*/123', 12));
+        $this->assertSame([4], $f->get_range_for_expression('*/123', 12));
 
-        $e = new CronExpression('* * * */123 *');
-        $this->assertTrue($e->isDue(new DateTime('2014-04-07 00:00:00')));
+        $e = new Cron_Expression('* * * */123 *');
+        $this->assertTrue($e->is_due(new DateTime('2014-04-07 00:00:00')));
 
-        $nextRunDate = $e->getNextRunDate(new DateTime('2014-04-07 00:00:00'));
+        $nextRunDate = $e->get_next_run_date(new DateTime('2014-04-07 00:00:00'));
         $this->assertSame('2014-04-07 00:01:00', $nextRunDate->format('Y-m-d H:i:s'));
 
-        $nextRunDate = $e->getNextRunDate(new DateTime('2014-05-07 00:00:00'));
+        $nextRunDate = $e->get_next_run_date(new DateTime('2014-05-07 00:00:00'));
         $this->assertSame('2015-04-01 00:00:00', $nextRunDate->format('Y-m-d H:i:s'));
     }
 
@@ -575,7 +575,7 @@ class CronExpressionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('6 is not a valid position');
 
-        $e = new CronExpression('0 * * * * ? *');
+        $e = new Cron_Expression('0 * * * * ? *');
     }
 
     /**
@@ -583,8 +583,8 @@ class CronExpressionTest extends TestCase
      */
     public function testMakeDayOfWeekAnOrSometimes(): void
     {
-        $cron = new CronExpression('30 0 1 * 1');
-        $runs = $cron->getMultipleRunDates(5, date('2019-10-10 23:20:00'), false, true);
+        $cron = new Cron_Expression('30 0 1 * 1');
+        $runs = $cron->get_multiple_run_dates(5, date('2019-10-10 23:20:00'), false, true);
 
         $this->assertSame('2019-10-14 00:30:00', $runs[0]->format('Y-m-d H:i:s'));
         $this->assertSame('2019-10-21 00:30:00', $runs[1]->format('Y-m-d H:i:s'));
@@ -594,27 +594,27 @@ class CronExpressionTest extends TestCase
     }
 
     /**
-     * Make sure that getNextRunDate() does not add arbitrary minutes
+     * Make sure that get_next_run_date() does not add arbitrary minutes
      *
      * @see https://github.com/mtdowling/cron-expression/issues/152
      */
     public function testNextRunDateShouldNotAddMinutes(): void
     {
-        $e = new CronExpression('* 19 * * *');
+        $e = new Cron_Expression('* 19 * * *');
         $tz = new \DateTimeZone('Europe/London');
         $dt = new \DateTimeImmutable('2021-05-31 18:15:00', $tz);
-        $nextRunDate = $e->getNextRunDate($dt);
+        $nextRunDate = $e->get_next_run_date($dt);
 
         $this->assertSame('00', $nextRunDate->format('i'));
     }
 
     /**
-     * Tests the getParts function.
+     * Tests the get_parts function.
      */
     public function testGetParts(): void
     {
-        $e = CronExpression::factory('0 22 * * 1-5');
-        $parts = $e->getParts();
+        $e = Cron_Expression::factory('0 22 * * 1-5');
+        $parts = $e->get_parts();
 
         $this->assertSame('0', $parts[0]);
         $this->assertSame('22', $parts[1]);
@@ -625,9 +625,9 @@ class CronExpressionTest extends TestCase
 
     public function testBerlinShouldAdvanceProperlyOverDST()
     {
-        $e = new CronExpression('0 0 1 * *');
+        $e = new Cron_Expression('0 0 1 * *');
         $expected = new \DateTime('2022-11-01 00:00:00', new \DateTimeZone('Europe/Berlin'));
-        $next = $e->getNextRunDate(new \DateTime('2022-10-30', new \DateTimeZone('Europe/Berlin')));
+        $next = $e->get_next_run_date(new \DateTime('2022-10-30', new \DateTimeZone('Europe/Berlin')));
         $this->assertEquals($expected, $next);
     }
 
@@ -638,137 +638,137 @@ class CronExpressionTest extends TestCase
      */
     public function testIssue131()
     {
-        $e = new CronExpression('* * * * 2');
+        $e = new Cron_Expression('* * * * 2');
         $expected = new \DateTime('2020-10-27 00:00:00', new \DateTimeZone('Europe/Berlin'));
-        $next = $e->getNextRunDate(new DateTime('2020-10-23 15:31:45', new \DateTimeZone('Europe/Berlin')));
+        $next = $e->get_next_run_date(new DateTime('2020-10-23 15:31:45', new \DateTimeZone('Europe/Berlin')));
         $this->assertEquals($expected, $next);
 
         $expected = new \DateTime('2020-10-20 23:59:00', new \DateTimeZone('Europe/Berlin'));
-        $prev = $e->getPreviousRunDate(new DateTime('2020-10-23 15:31:45', new \DateTimeZone('Europe/Berlin')));
+        $prev = $e->get_previous_run_date(new DateTime('2020-10-23 15:31:45', new \DateTimeZone('Europe/Berlin')));
         $this->assertEquals($expected, $prev);
 
-        $e = new CronExpression('15 1 1 9,11 *');
+        $e = new Cron_Expression('15 1 1 9,11 *');
         $expected = new \DateTime('2022-09-01 01:15:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'));
         $this->assertEquals($expected, $next);
 
         $expected = new \DateTime('2021-11-01 01:15:00');
-        $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $prev = $e->get_previous_run_date(new \DateTime('2022-08-20 03:44:02'));
         $this->assertEquals($expected, $prev);
     }
 
     public function testIssue128()
     {
-        $e = new CronExpression('0 20 L 6,12 ?');
+        $e = new Cron_Expression('0 20 L 6,12 ?');
         $expected = new \DateTime('2022-12-31 20:00:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'));
         $this->assertEquals($expected, $next);
 
         $expected = new \DateTime('2023-12-31 20:00:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 2);
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'), 2);
         $this->assertEquals($expected, $next);
 
         $expected = new \DateTime('2022-06-30 20:00:00');
-        $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $prev = $e->get_previous_run_date(new \DateTime('2022-08-20 03:44:02'));
         $this->assertEquals($expected, $prev);
 
         $expected = new \DateTime('2021-12-31 20:00:00');
-        $prev = $e->getPreviousRunDate(new \DateTime('2022-08-20 03:44:02'), 1);
+        $prev = $e->get_previous_run_date(new \DateTime('2022-08-20 03:44:02'), 1);
         $this->assertEquals($expected, $prev);
 
-        $e = new CronExpression('0 20 L 6,12 0-6');
+        $e = new Cron_Expression('0 20 L 6,12 0-6');
         $expected = new \DateTime('2022-12-01 20:00:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'));
         $this->assertEquals($expected, $next);
 
-        $e = new CronExpression('0 20 L 6,12 0-6');
+        $e = new Cron_Expression('0 20 L 6,12 0-6');
         $expected = new \DateTime('2022-12-02 20:00:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 1);
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'), 1);
         $this->assertEquals($expected, $next);
 
-        $e = new CronExpression('0 20 L 6,12 0-6');
+        $e = new Cron_Expression('0 20 L 6,12 0-6');
         $expected = new \DateTime('2022-12-03 20:00:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 2);
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'), 2);
         $this->assertEquals($expected, $next);
 
-        $e = new CronExpression('0 20 * 6,12 *');
+        $e = new Cron_Expression('0 20 * 6,12 *');
         $expected = new \DateTime('2022-12-01 20:00:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'));
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'));
         $this->assertEquals($expected, $next);
 
-        $e = new CronExpression('0 20 * 6,12 *');
+        $e = new Cron_Expression('0 20 * 6,12 *');
         $expected = new \DateTime('2022-12-06 20:00:00');
-        $next = $e->getNextRunDate(new \DateTime('2022-08-20 03:44:02'), 5);
+        $next = $e->get_next_run_date(new \DateTime('2022-08-20 03:44:02'), 5);
         $this->assertEquals($expected, $next);
     }
 
     public function testItCanRegisterAnValidExpression(): void
     {
-        CronExpression::registerAlias('@every', '* * * * *');
+        Cron_Expression::register_alias('@every', '* * * * *');
 
-        self::assertCount(8, CronExpression::getAliases());
-        self::assertArrayHasKey('@every', CronExpression::getAliases());
-        self::assertTrue(CronExpression::supportsAlias('@every'));
-        self::assertEquals(new CronExpression('@every'), new CronExpression('* * * * *'));
+        self::assertCount(8, Cron_Expression::get_aliases());
+        self::assertArrayHasKey('@every', Cron_Expression::get_aliases());
+        self::assertTrue(Cron_Expression::supports_alias('@every'));
+        self::assertEquals(new Cron_Expression('@every'), new Cron_Expression('* * * * *'));
 
-        self::assertTrue(CronExpression::unregisterAlias('@every'));
-        self::assertFalse(CronExpression::unregisterAlias('@every'));
+        self::assertTrue(Cron_Expression::unregister_alias('@every'));
+        self::assertFalse(Cron_Expression::unregister_alias('@every'));
 
-        self::assertCount(7, CronExpression::getAliases());
-        self::assertArrayNotHasKey('@every', CronExpression::getAliases());
-        self::assertFalse(CronExpression::supportsAlias('@every'));
+        self::assertCount(7, Cron_Expression::get_aliases());
+        self::assertArrayNotHasKey('@every', Cron_Expression::get_aliases());
+        self::assertFalse(Cron_Expression::supports_alias('@every'));
 
         $this->expectException(LogicException::class);
-        new CronExpression('@every');
+        new Cron_Expression('@every');
     }
 
     public function testItWillFailToRegisterAnInvalidExpression(): void
     {
         $this->expectException(LogicException::class);
 
-        CronExpression::registerAlias('@every', 'foobar');
+        Cron_Expression::register_alias('@every', 'foobar');
     }
 
     public function testItWillFailToRegisterAnInvalidName(): void
     {
         $this->expectException(LogicException::class);
 
-        CronExpression::registerAlias('every', '* * * * *');
+        Cron_Expression::register_alias('every', '* * * * *');
     }
 
     public function testItWillFailToRegisterAnInvalidName2(): void
     {
         $this->expectException(LogicException::class);
 
-        CronExpression::registerAlias('@évery', '* * * * *');
+        Cron_Expression::register_alias('@évery', '* * * * *');
     }
 
     public function testItWillFailToRegisterAValidNameTwice(): void
     {
-        CronExpression::registerAlias('@Ev_eR_y', '* * * * *');
+        Cron_Expression::register_alias('@Ev_eR_y', '* * * * *');
 
         $this->expectException(LogicException::class);
-        CronExpression::registerAlias('@eV_Er_Y', '2 2 2 2 2');
+        Cron_Expression::register_alias('@eV_Er_Y', '2 2 2 2 2');
     }
 
     public function testItWillFailToUnregisterADefaultExpression(): void
     {
         $this->expectException(LogicException::class);
 
-        CronExpression::unregisterAlias('@daily');
+        Cron_Expression::unregister_alias('@daily');
     }
 
     public function testIssue134ForeachInvalidArgumentOnHours()
     {
-        $cron = new CronExpression('0 0 1 1 *');
-        $prev = $cron->getPreviousRunDate(new \DateTimeImmutable('2021-09-07T09:36:00Z'));
+        $cron = new Cron_Expression('0 0 1 1 *');
+        $prev = $cron->get_previous_run_date(new \DateTimeImmutable('2021-09-07T09:36:00Z'));
         $this->assertEquals(new \DateTime('2021-01-01 00:00:00'), $prev);
     }
 
     public function testIssue151ExpressionSupportLW()
     {
-        $cron = new CronExpression('0 10 LW * *');
-        $this->assertTrue($cron->isDue(new \DateTimeImmutable('2023-08-31 10:00:00')));
-        $this->assertFalse($cron->isDue(new \DateTimeImmutable('2023-08-30 10:00:00')));
+        $cron = new Cron_Expression('0 10 LW * *');
+        $this->assertTrue($cron->is_due(new \DateTimeImmutable('2023-08-31 10:00:00')));
+        $this->assertFalse($cron->is_due(new \DateTimeImmutable('2023-08-30 10:00:00')));
     }
 }

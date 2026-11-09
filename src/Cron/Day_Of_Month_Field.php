@@ -36,16 +36,16 @@ class Day_Of_Month_Field extends Abstract_Field
     /**
      * Get the nearest day of the week for a given day in a month.
      *
-     * @param int $currentYear Current year
-     * @param int $currentMonth Current month
-     * @param int $targetDay Target day of the month
+     * @param int $current_year Current year
+     * @param int $current_month Current month
+     * @param int $target_day Target day of the month
      *
      * @return \DateTime|null Returns the nearest date
      */
     private static function get_nearest_weekday(int $current_year, int $current_month, int $target_day): ?DateTime
     {
         $tday = str_pad((string) $target_day, 2, '0', STR_PAD_LEFT);
-        $target = DateTime::create_from_format('Y-m-d', "{$current_year}-{$current_month}-{$tday}");
+        $target = DateTime::createFromFormat('Y-m-d', "{$current_year}-{$current_month}-{$tday}");
         if ($target === false) {
             return null;
         }
@@ -57,7 +57,7 @@ class Day_Of_Month_Field extends Abstract_Field
         foreach ([-1, 1, -2, 2] as $i) {
             $adjusted = $target_day + $i;
             if ($adjusted > 0 && $adjusted <= $last_day_of_month) {
-                $target->set_date($current_year, $current_month, $adjusted);
+                $target->setDate($current_year, $current_month, $adjusted);
                 if ((int) $target->format('N') < 6 && (int) $target->format('m') === $current_month) {
                     return $target;
                 }
@@ -97,14 +97,14 @@ class Day_Of_Month_Field extends Abstract_Field
      *
      * @param \DateTime|\DateTimeImmutable $date
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): Field_Interface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): static
     {
         if (!$invert) {
             $date = $date->add(new \DateInterval('P1D'));
-            $date = $date->set_time(0, 0);
+            $date = $date->setTime(0, 0);
         } else {
             $date = $date->sub(new \DateInterval('P1D'));
-            $date = $date->set_time(23, 59);
+            $date = $date->setTime(23, 59);
         }
         return $this;
     }

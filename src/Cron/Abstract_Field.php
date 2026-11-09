@@ -44,7 +44,7 @@ abstract class Abstract_Field implements Field_Interface
      * Check to see if a field is satisfied by a value.
      *
      * @internal
-     * @param int $dateValue Date value to check
+     * @param int $date_value Date value to check
      * @param string $value Value to test
      */
     public function is_satisfied(int $date_value, string $value): bool
@@ -81,7 +81,7 @@ abstract class Abstract_Field implements Field_Interface
      * Test if a value is within a range.
      *
      * @internal
-     * @param int $dateValue Set date value
+     * @param int $date_value Set date value
      * @param string $value Value to test
      */
     public function is_in_range(int $date_value, $value): bool
@@ -96,7 +96,7 @@ abstract class Abstract_Field implements Field_Interface
      * Test if a value is within an increments of ranges (offset[-to]/step size).
      *
      * @internal
-     * @param int $dateValue Set date value
+     * @param int $date_value Set date value
      * @param string $value Value to test
      */
     public function is_in_increments_of_ranges(int $date_value, string $value): bool
@@ -256,14 +256,14 @@ abstract class Abstract_Field implements Field_Interface
     }
     protected function timezone_safe_modify(DateTimeInterface $dt, string $modification): DateTimeInterface
     {
-        $timezone = $dt->get_timezone();
-        $dt = $dt->set_timezone(new \DateTimeZone('UTC'));
+        $timezone = $dt->getTimezone();
+        $dt = $dt->setTimezone(new \DateTimeZone('UTC'));
         $dt = $dt->modify($modification);
-        return $dt->set_timezone($timezone);
+        return $dt->setTimezone($timezone);
     }
     protected function set_time_hour(DateTimeInterface $date, bool $invert, int $original_timestamp): DateTimeInterface
     {
-        $date = $date->set_time((int) $date->format('H'), $invert ? 59 : 0);
+        $date = $date->setTime((int) $date->format('H'), $invert ? 59 : 0);
         // setTime caused the offset to change, moving time in the wrong direction
         $actual_timestamp = $date->format('U');
         if (!$invert && $actual_timestamp <= $original_timestamp) {

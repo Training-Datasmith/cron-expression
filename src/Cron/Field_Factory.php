@@ -12,7 +12,7 @@ use InvalidArgumentException;
 class Field_Factory implements Field_Factory_Interface
 {
     /**
-     * @var array<int, FieldInterface> Cache of instantiated fields
+     * @var array<int, Field_Interface> Cache of instantiated fields
      */
     private array $fields = [];
     /**

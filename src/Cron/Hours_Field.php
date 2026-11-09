@@ -45,10 +45,10 @@ class Hours_Field extends Abstract_Field
         if ($last_transition !== null && $last_transition['ts'] > (int) $date->format('U') - 3600) {
             $dt_last_offset = clone $date;
             $this->timezone_safe_modify($dt_last_offset, '-1 hour');
-            $last_offset = $dt_last_offset->get_offset();
+            $last_offset = $dt_last_offset->getOffset();
             $dt_next_offset = clone $date;
             $this->timezone_safe_modify($dt_next_offset, '+1 hour');
-            $next_offset = $dt_next_offset->get_offset();
+            $next_offset = $dt_next_offset->getOffset();
             $offset_change = $next_offset - $last_offset;
             if ($offset_change >= 3600) {
                 $check_value -= 1;
@@ -74,12 +74,12 @@ class Hours_Field extends Abstract_Field
             $dt_limit_start = $dt_limit_start->modify('-12 months');
             $dt_limit_end = clone $date;
             $dt_limit_end = $dt_limit_end->modify('+12 months');
-            $this->transitions = $date->get_timezone()->get_transitions($dt_limit_start->get_timestamp(), $dt_limit_end->get_timestamp());
+            $this->transitions = $date->getTimezone()->getTransitions($dt_limit_start->getTimestamp(), $dt_limit_end->getTimestamp());
             if (empty($this->transitions)) {
                 return null;
             }
-            $this->transitions_start = $dt_limit_start->get_timestamp();
-            $this->transitions_end = $dt_limit_end->get_timestamp();
+            $this->transitions_start = $dt_limit_start->getTimestamp();
+            $this->transitions_end = $dt_limit_end->getTimestamp();
         }
         $next_transition = null;
         foreach ($this->transitions as $transition) {
@@ -98,7 +98,7 @@ class Hours_Field extends Abstract_Field
      *
      * @param string|null                  $parts
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): Field_Interface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): static
     {
         $original_timestamp = (int) $date->format('U');
         // Change timezone to UTC temporarily. This will
@@ -133,7 +133,7 @@ class Hours_Field extends Abstract_Field
         $original_hour = (int) $date->format('H');
         $original_dst = (int) $date->format('I');
         $original_day = (int) $date->format('d');
-        $previous_offset = $date->get_offset();
+        $previous_offset = $date->getOffset();
         if (!$invert) {
             if ($original_hour >= $target) {
                 $distance = 24 - $original_hour;
@@ -141,7 +141,7 @@ class Hours_Field extends Abstract_Field
                 $actual_day = (int) $date->format('d');
                 $actual_hour = (int) $date->format('H');
                 if ($actual_day !== $original_day + 1 && $actual_hour !== 0) {
-                    $offset_change = $previous_offset - $date->get_offset();
+                    $offset_change = $previous_offset - $date->getOffset();
                     $date = $this->timezone_safe_modify($date, "+{$offset_change} seconds");
                 }
                 $original_hour = (int) $date->format('H');
@@ -155,7 +155,7 @@ class Hours_Field extends Abstract_Field
                 $actual_day = (int) $date->format('d');
                 $actual_hour = (int) $date->format('H');
                 if ($actual_day !== $original_day - 1 && $actual_hour !== 23) {
-                    $offset_change = $previous_offset - $date->get_offset();
+                    $offset_change = $previous_offset - $date->getOffset();
                     $date = $this->timezone_safe_modify($date, "+{$offset_change} seconds");
                 }
                 $original_hour = (int) $date->format('H');

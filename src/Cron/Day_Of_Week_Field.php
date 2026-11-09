@@ -89,7 +89,7 @@ class Day_Of_Week_Field extends Abstract_Field
                 return false;
             }
             $tdate = clone $date;
-            $tdate = $tdate->set_date($current_year, $current_month, 1);
+            $tdate = $tdate->setDate($current_year, $current_month, 1);
             $day_count = 0;
             $current_day = 1;
             while ($current_day < $last_day_of_month + 1) {
@@ -98,7 +98,7 @@ class Day_Of_Week_Field extends Abstract_Field
                         break;
                     }
                 }
-                $tdate = $tdate->set_date($current_year, $current_month, ++$current_day);
+                $tdate = $tdate->setDate($current_year, $current_month, ++$current_day);
             }
             return (int) $date->format('j') === $current_day;
         }
@@ -120,14 +120,14 @@ class Day_Of_Week_Field extends Abstract_Field
     /**
      * @inheritDoc
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): Field_Interface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): static
     {
         if (!$invert) {
             $date = $date->add(new \DateInterval('P1D'));
-            $date = $date->set_time(0, 0);
+            $date = $date->setTime(0, 0);
         } else {
             $date = $date->sub(new \DateInterval('P1D'));
-            $date = $date->set_time(23, 59);
+            $date = $date->setTime(23, 59);
         }
         return $this;
     }

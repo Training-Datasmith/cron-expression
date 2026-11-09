@@ -11,13 +11,20 @@
             "homepage": "https://github.com/dragonmantank"
         }
     ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://raw.githubusercontent.com/Training-Datasmith/composer-index/remote-test-2026-11-09",
+            "canonical": false
+        }
+    ],
     "require": {
         "php": "^8.2|^8.3|^8.4|^8.5"
     },
     "require-dev": {
-        "phpstan/phpstan": "^2.1.31",
+        "phpstan/phpstan": "dev-remote-test-2026-10-07 as 2.2.99",
         "phpunit/phpunit": "^11.5.43 || ^12.4",
-        "phpstan/extension-installer": "^1.4.3"
+        "phpstan/extension-installer": "dev-remote-test-2026-10-07 as 1.4.3"
     },
     "autoload": {
         "psr-4": {
@@ -33,8 +40,12 @@
         "mtdowling/cron-expression": "^1.0"
     },
     "scripts": {
-        "phpstan": "./vendor/bin/phpstan analyze",
-        "test": "phpunit"
+        "phpstan": "phpstan analyze --no-progress --no-ansi --memory-limit=1G",
+        "test": [
+            "@php scripts/check-rename-residual.php",
+            "@php scripts/check-cluster-pins.php",
+            "phpunit --colors=never --no-coverage"
+        ]
     },
     "extra": {
         "branch-alias": {

@@ -37,14 +37,14 @@ class Month_Field extends Abstract_Field
      *
      * @param \DateTime|\DateTimeImmutable $date
      */
-    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): Field_Interface
+    public function increment(DateTimeInterface &$date, $invert = false, $parts = null): static
     {
         if (!$invert) {
             $date = $date->modify('first day of next month');
-            $date = $date->set_time(0, 0);
+            $date = $date->setTime(0, 0);
         } else {
             $date = $date->modify('last day of previous month');
-            $date = $date->set_time(23, 59);
+            $date = $date->setTime(23, 59);
         }
         return $this;
     }

@@ -1,0 +1,6 @@
+# PHPUnit summary captured from git ed62df9 in docker image
+# php:8.2-cli-bookworm@sha256:26b388d187a5e592ef5e02c14d0f92dd9c761894ff0a5fe338183196471c4b4e
+# Composer 2.8.10, Packagist phpunit/phpunit 11.5.57
+BASELINE_COMMIT=ed62df9cf23bb269657515460c44aeeccf57d34d
+PHPUNIT_OK_LINE=OK, but some tests were skipped!
+PHPUNIT_SUMMARY_LINE=Tests: 175, Assertions: 798, Skipped: 4.

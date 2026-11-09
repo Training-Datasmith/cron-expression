@@ -38,7 +38,7 @@ class Cron_Expression implements \Stringable
      */
     protected $cron_parts;
     /**
-     * @var FieldFactoryInterface CRON field factory
+     * @var Field_Factory_Interface CRON field factory
      */
     protected \Cron\Field_Factory_Interface $field_factory;
     /**
@@ -118,7 +118,7 @@ class Cron_Expression implements \Stringable
         return new static($expression, $field_factory);
     }
     /**
-     * Validate a CronExpression.
+     * Validate a Cron_Expression.
      *
      * @param string $expression the CRON expression to validate
      *
@@ -137,7 +137,7 @@ class Cron_Expression implements \Stringable
      * Parse a CRON expression.
      *
      * @param string $expression CRON expression (e.g. '8 * * * *')
-     * @param null|FieldFactoryInterface $fieldFactory Factory to create cron fields
+     * @param null|Field_Factory_Interface $field_factory Factory to create cron fields
      * @throws InvalidArgumentException
      */
     public function __construct(string $expression, ?Field_Factory_Interface $field_factory = null)
@@ -191,7 +191,7 @@ class Cron_Expression implements \Stringable
     /**
      * Set max iteration count for searching next run dates.
      *
-     * @param int $maxIterationCount Max iteration count when searching for next run date
+     * @param int $max_iteration_count Max iteration count when searching for next run date
      */
     public function set_max_iteration_count(int $max_iteration_count): static
     {
@@ -201,7 +201,7 @@ class Cron_Expression implements \Stringable
     /**
      * Get a next run date relative to the current date or a specific date
      *
-     * @param string|\DateTimeInterface $currentTime      Relative calculation date
+     * @param string|\DateTimeInterface $current_time      Relative calculation date
      * @param int                       $nth              Number of matches to skip before returning a
      *                                                    matching next run date.  0, the default, will return the
      *                                                    current date and time if the next run date falls on the
@@ -209,9 +209,9 @@ class Cron_Expression implements \Stringable
      *                                                    skip the first match and go to the second match.
      *                                                    Setting this value to 2 will skip the first 2
      *                                                    matches and so on.
-     * @param bool                      $allowCurrentDate Set to TRUE to return the current date if
+     * @param bool                      $allow_current_date Set to TRUE to return the current date if
      *                                                    it matches the cron expression.
-     * @param null|string               $timeZone         TimeZone to use instead of the system default
+     * @param null|string               $time_zone         TimeZone to use instead of the system default
      *
      * @throws \RuntimeException on too many iterations
      * @throws \Exception
@@ -223,17 +223,17 @@ class Cron_Expression implements \Stringable
     /**
      * Get a previous run date relative to the current date or a specific date.
      *
-     * @param string|\DateTimeInterface $currentTime      Relative calculation date
+     * @param string|\DateTimeInterface $current_time      Relative calculation date
      * @param int                       $nth              Number of matches to skip before returning
-     * @param bool                      $allowCurrentDate Set to TRUE to return the
+     * @param bool                      $allow_current_date Set to TRUE to return the
      *                                                    current date if it matches the cron expression
-     * @param null|string               $timeZone         TimeZone to use instead of the system default
+     * @param null|string               $time_zone         TimeZone to use instead of the system default
      *
      * @throws \RuntimeException on too many iterations
      * @throws \Exception
      *
      *
-     * @see \Cron\CronExpression::getNextRunDate
+     * @see \Cron\Cron_Expression::get_next_run_date
      */
     public function get_previous_run_date(string|DateTimeInterface $current_time = 'now', int $nth = 0, bool $allow_current_date = false, ?string $time_zone = null): DateTime
     {
@@ -243,11 +243,11 @@ class Cron_Expression implements \Stringable
      * Get multiple run dates starting at the current date or a specific date.
      *
      * @param int $total Set the total number of dates to calculate
-     * @param string|\DateTimeInterface|null $currentTime Relative calculation date
+     * @param string|\DateTimeInterface|null $current_time Relative calculation date
      * @param bool $invert Set to TRUE to retrieve previous dates
-     * @param bool $allowCurrentDate Set to TRUE to return the
+     * @param bool $allow_current_date Set to TRUE to return the
      *                               current date if it matches the cron expression
-     * @param null|string $timeZone TimeZone to use instead of the system default
+     * @param null|string $time_zone TimeZone to use instead of the system default
      *
      * @return \DateTime[] Returns an array of run dates
      */
@@ -259,14 +259,14 @@ class Cron_Expression implements \Stringable
         } elseif ($current_time instanceof DateTime) {
             $current_time = clone $current_time;
         } elseif ($current_time instanceof DateTimeImmutable) {
-            $current_time = DateTime::create_from_format('U', $current_time->format('U'));
+            $current_time = DateTime::createFromFormat('U', $current_time->format('U'));
         } elseif (\is_string($current_time)) {
             $current_time = new DateTime($current_time);
         }
         if (!$current_time instanceof DateTime) {
             throw new InvalidArgumentException('invalid current time');
         }
-        $current_time->set_timezone(new DateTimeZone($time_zone));
+        $current_time->setTimezone(new DateTimeZone($time_zone));
         $matches = [];
         for ($i = 0; $i < $total; ++$i) {
             try {
@@ -289,10 +289,13 @@ class Cron_Expression implements \Stringable
      * @return string|null the full expression string, a single field value, or NULL if the
      *                     requested position does not exist in the expression
      */
-    public function get_expression(?int $part = null): ?string
+    public function get_expression(int|string|null $part = null): ?string
     {
         if (null === $part) {
             return implode(' ', $this->cron_parts);
+        }
+        if (!\is_int($part)) {
+            return null;
         }
         if (array_key_exists($part, $this->cron_parts)) {
             return $this->cron_parts[$part];
@@ -323,8 +326,8 @@ class Cron_Expression implements \Stringable
      * specific date.  This method assumes that the current number of
      * seconds are irrelevant, and should be called once per minute.
      *
-     * @param string|\DateTimeInterface $currentTime Relative calculation date
-     * @param null|string               $timeZone    TimeZone to use instead of the system default
+     * @param string|\DateTimeInterface $current_time Relative calculation date
+     * @param null|string               $time_zone    TimeZone to use instead of the system default
      *
      * @return bool Returns TRUE if the cron is due to run or FALSE if not
      */
@@ -336,18 +339,18 @@ class Cron_Expression implements \Stringable
         } elseif ($current_time instanceof DateTime) {
             $current_time = clone $current_time;
         } elseif ($current_time instanceof DateTimeImmutable) {
-            $current_time = DateTime::create_from_format('U', $current_time->format('U'));
+            $current_time = DateTime::createFromFormat('U', $current_time->format('U'));
         } elseif (\is_string($current_time)) {
             $current_time = new DateTime($current_time);
         }
         if (!$current_time instanceof DateTime) {
             throw new InvalidArgumentException('invalid current time');
         }
-        $current_time->set_timezone(new DateTimeZone($time_zone));
+        $current_time->setTimezone(new DateTimeZone($time_zone));
         // drop the seconds to 0
-        $current_time->set_time((int) $current_time->format('H'), (int) $current_time->format('i'), 0);
+        $current_time->setTime((int) $current_time->format('H'), (int) $current_time->format('i'), 0);
         try {
-            return $this->get_next_run_date($current_time, 0, true)->get_timestamp() === $current_time->get_timestamp();
+            return $this->get_next_run_date($current_time, 0, true)->getTimestamp() === $current_time->getTimestamp();
         } catch (Exception) {
             return false;
         }
@@ -355,12 +358,12 @@ class Cron_Expression implements \Stringable
     /**
      * Get the next or previous run date of the expression relative to a date.
      *
-     * @param string|\DateTimeInterface|null $currentTime Relative calculation date
+     * @param string|\DateTimeInterface|null $current_time Relative calculation date
      * @param int $nth Number of matches to skip before returning
      * @param bool $invert Set to TRUE to go backwards in time
-     * @param bool $allowCurrentDate Set to TRUE to return the
+     * @param bool $allow_current_date Set to TRUE to return the
      *                               current date if it matches the cron expression
-     * @param string|null $timeZone  TimeZone to use instead of the system default
+     * @param string|null $time_zone  TimeZone to use instead of the system default
      *
      * @throws \RuntimeException on too many iterations
      * @throws Exception
@@ -371,7 +374,7 @@ class Cron_Expression implements \Stringable
         if ($current_time instanceof DateTime) {
             $current_date = clone $current_time;
         } elseif ($current_time instanceof DateTimeImmutable) {
-            $current_date = DateTime::create_from_format('U', $current_time->format('U'));
+            $current_date = DateTime::createFromFormat('U', $current_time->format('U'));
         } elseif (\is_string($current_time)) {
             $current_date = new DateTime($current_time);
         } else {
@@ -380,13 +383,13 @@ class Cron_Expression implements \Stringable
         if (!$current_date instanceof DateTime) {
             throw new InvalidArgumentException('invalid current date');
         }
-        $current_date->set_timezone(new DateTimeZone($time_zone));
+        $current_date->setTimezone(new DateTimeZone($time_zone));
         // Workaround for setTime causing an offset change: https://bugs.php.net/bug.php?id=81074
-        $current_date = DateTime::create_from_format('!Y-m-d H:iO', $current_date->format('Y-m-d H:iP'), $current_date->get_timezone());
+        $current_date = DateTime::createFromFormat('!Y-m-d H:iO', $current_date->format('Y-m-d H:iP'), $current_date->getTimezone());
         if ($current_date === false) {
             throw new \RuntimeException('Unable to create date from format');
         }
-        $current_date->set_timezone(new DateTimeZone($time_zone));
+        $current_date->setTimezone(new DateTimeZone($time_zone));
         $next_run = clone $current_date;
         // We don't have to satisfy * or null fields
         $parts = [];
@@ -459,8 +462,8 @@ class Cron_Expression implements \Stringable
     /**
      * Workout what timeZone should be used.
      *
-     * @param string|\DateTimeInterface|null $currentTime Relative calculation date
-     * @param string|null $timeZone TimeZone to use instead of the system default
+     * @param string|\DateTimeInterface|null $current_time Relative calculation date
+     * @param string|null $time_zone TimeZone to use instead of the system default
      */
     protected function determine_time_zone($current_time, ?string $time_zone): string
     {
@@ -468,7 +471,7 @@ class Cron_Expression implements \Stringable
             return $time_zone;
         }
         if ($current_time instanceof DateTimeInterface) {
-            return $current_time->get_timezone()->get_name();
+            return $current_time->getTimezone()->getName();
         }
         return date_default_timezone_get();
     }

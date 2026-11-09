@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Cron\Tests;
 
-use Cron\DayOfWeekField;
+use Cron\Day_Of_Week_Field;
 use DateTime;
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -15,13 +15,13 @@ use PHPUnit\Framework\TestCase;
  * @author Michael Dowling <mtdowling@gmail.com>
  */
 #[CoversFunction('validate')]
-#[CoversFunction('isSatisfiedBy')]
+#[CoversFunction('is_satisfied_by')]
 #[CoversFunction('increment')]
-class DayOfWeekFieldTest extends TestCase
+class Day_Of_Week_Field_Test extends TestCase
 {
     public function testValidatesField(): void
     {
-        $f = new DayOfWeekField();
+        $f = new Day_Of_Week_Field();
         $this->assertTrue($f->validate('1'));
         $this->assertTrue($f->validate('01'));
         $this->assertTrue($f->validate('00'));
@@ -34,15 +34,15 @@ class DayOfWeekFieldTest extends TestCase
 
     public function testChecksIfSatisfied(): void
     {
-        $f = new DayOfWeekField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '?', false));
-        $this->assertTrue($f->isSatisfiedBy(new DateTimeImmutable(), '?', false));
+        $f = new Day_Of_Week_Field();
+        $this->assertTrue($f->is_satisfied_by(new DateTime(), '?', false));
+        $this->assertTrue($f->is_satisfied_by(new DateTimeImmutable(), '?', false));
     }
 
     public function testIncrementsDate(): void
     {
         $d = new DateTime('2011-03-15 11:15:00');
-        $f = new DayOfWeekField();
+        $f = new Day_Of_Week_Field();
         $f->increment($d);
         $this->assertSame('2011-03-16 00:00:00', $d->format('Y-m-d H:i:s'));
 
@@ -54,7 +54,7 @@ class DayOfWeekFieldTest extends TestCase
     public function testIncrementsDateTimeImmutable(): void
     {
         $d = new DateTimeImmutable('2011-03-15 11:15:00');
-        $f = new DayOfWeekField();
+        $f = new Day_Of_Week_Field();
         $f->increment($d);
         $this->assertSame('2011-03-16 00:00:00', $d->format('Y-m-d H:i:s'));
     }
@@ -63,21 +63,21 @@ class DayOfWeekFieldTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Weekday must be a value between 0 and 7. 12 given');
-        $f = new DayOfWeekField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '12#1', false));
+        $f = new Day_Of_Week_Field();
+        $this->assertTrue($f->is_satisfied_by(new DateTime(), '12#1', false));
     }
 
     public function testValidatesHashValueNth(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('There are never more than 5 or less than 1 of a given weekday in a month');
-        $f = new DayOfWeekField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime(), '3#6', false));
+        $f = new Day_Of_Week_Field();
+        $this->assertTrue($f->is_satisfied_by(new DateTime(), '3#6', false));
     }
 
     public function testValidateWeekendHash(): void
     {
-        $f = new DayOfWeekField();
+        $f = new Day_Of_Week_Field();
         $this->assertTrue($f->validate('MON#1'));
         $this->assertTrue($f->validate('TUE#2'));
         $this->assertTrue($f->validate('WED#3'));
@@ -90,23 +90,23 @@ class DayOfWeekFieldTest extends TestCase
 
     public function testHandlesZeroAndSevenDayOfTheWeekValues(): void
     {
-        $f = new DayOfWeekField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '0-2', false));
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2011-09-04 00:00:00'), '6-0', false));
+        $f = new Day_Of_Week_Field();
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2011-09-04 00:00:00'), '0-2', false));
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2011-09-04 00:00:00'), '6-0', false));
 
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), 'SUN', false));
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), 'SUN#3', false));
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), '0#3', false));
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2014-04-20 00:00:00'), '7#3', false));
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2014-04-20 00:00:00'), 'SUN', false));
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2014-04-20 00:00:00'), 'SUN#3', false));
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2014-04-20 00:00:00'), '0#3', false));
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2014-04-20 00:00:00'), '7#3', false));
     }
 
     public function testHandlesLastWeekdayOfTheMonth(): void
     {
-        $f = new DayOfWeekField();
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2018-12-28 00:00:00'), 'FRIL', false));
-        $this->assertTrue($f->isSatisfiedBy(new DateTime('2018-12-28 00:00:00'), '5L', false));
-        $this->assertFalse($f->isSatisfiedBy(new DateTime('2018-12-21 00:00:00'), 'FRIL', false));
-        $this->assertFalse($f->isSatisfiedBy(new DateTime('2018-12-21 00:00:00'), '5L', false));
+        $f = new Day_Of_Week_Field();
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2018-12-28 00:00:00'), 'FRIL', false));
+        $this->assertTrue($f->is_satisfied_by(new DateTime('2018-12-28 00:00:00'), '5L', false));
+        $this->assertFalse($f->is_satisfied_by(new DateTime('2018-12-21 00:00:00'), 'FRIL', false));
+        $this->assertFalse($f->is_satisfied_by(new DateTime('2018-12-21 00:00:00'), '5L', false));
     }
 
     /**
@@ -114,7 +114,7 @@ class DayOfWeekFieldTest extends TestCase
      */
     public function testIssue47(): void
     {
-        $f = new DayOfWeekField();
+        $f = new Day_Of_Week_Field();
         $this->assertFalse($f->validate('mon,'));
         $this->assertFalse($f->validate('mon-'));
         $this->assertFalse($f->validate('*/2,'));
@@ -129,9 +129,9 @@ class DayOfWeekFieldTest extends TestCase
      */
     public function testLiteralsExpandProperly(): void
     {
-        $f = new DayOfWeekField();
+        $f = new Day_Of_Week_Field();
         $this->assertTrue($f->validate('MON-FRI'));
-        $this->assertSame([1, 2, 3, 4, 5], $f->getRangeForExpression('MON-FRI', 7));
+        $this->assertSame([1, 2, 3, 4, 5], $f->get_range_for_expression('MON-FRI', 7));
     }
 
     /**
@@ -143,7 +143,7 @@ class DayOfWeekFieldTest extends TestCase
      */
     public function testLiteralsIgnoreCasingProperly(): void
     {
-        $f = new DayOfWeekField();
+        $f = new Day_Of_Week_Field();
         $this->assertTrue($f->validate('MON'));
         $this->assertTrue($f->validate('Mon'));
         $this->assertTrue($f->validate('mon'));
